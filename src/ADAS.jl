@@ -1,9 +1,11 @@
 module ADAS
 using BSON
 using RedefStructs
+
 const default_adf11_database_file = joinpath(@__DIR__,"../data/adf11.bson")
 const default_adf11_directory = joinpath(@__DIR__,"../data/adf11")
 verbose = false #for debugging purpose
+
 include("ADF11.jl")
 
 mutable struct ADASDatabase
@@ -14,9 +16,6 @@ mutable struct ADASDatabase
 end
 
 const ADAS_database = ADASDatabase()
-
-# loading the database if it already exists otherwise build and save into bson
-#adf11_database = get_adf11_database()
 
 function retrieve_database(adas_type)
     if lowercase(adas_type) == "adf11"
@@ -29,9 +28,9 @@ function retrieve_database(adas_type)
 end 
 end
 
-function retrieve_data(args...; adas_type = "adf11", kwargs...)
+function retrieve_element_data(args...; adas_type = "adf11", kwargs...)
     if adas_type == "adf11"
-        return retrieve_adf11_data(args...;kwargs...)
+        return retrieve_adf11_elemnt_data(args...;kwargs...)
     else
         error("getting data of type $adas_type is not implemented yet...")
     end
@@ -42,7 +41,7 @@ function retrieve(element::String; year::String="latest", type::String="scd", me
      database = retrieve_database(adas_type)
      data = retrieve_element(element,database)
      if !(data === nothing)
-        return retrieve_data(data; year= year, type= type, metastable = metastable, adas_type = adas_type)
+        return retrieve_element_data(data; year= year, type= type, metastable = metastable, adas_type = adas_type)
      else
         return nothing
      end
@@ -99,7 +98,6 @@ function build_database(;kwargs...)
     build_adf11_database(kwargs...)
 end
 
-export retrieve_database
 end
 
 

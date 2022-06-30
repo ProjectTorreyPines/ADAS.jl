@@ -17,6 +17,7 @@ function show_adf11_types()
     end
     print("--------------------------------------")
 end
+
 function read_adf11_file(filepath::String)
     
     if verbose
@@ -106,9 +107,13 @@ end
     log_ne :: Vector{Float64}
     Te :: Vector{Float64}
     ne :: Vector{Float64}
+    unit_Te :: String
+    unit_ne :: String
     function ADASAxis(block::ADASBlock, header :: ADASHeader)
     log_Te = Vector{Float64}()
     log_ne = Vector{Float64}()
+    
+
     idx = 1
     while length(log_ne) < header.n_ne
         push!(log_ne,parse.(Float64,[n for n in split(block.content[idx])])...)
@@ -118,7 +123,8 @@ end
         push!(log_Te,parse.(Float64,[t for t in split(block.content[idx])])...)
         idx += 1
     end
-    new(log_Te, log_ne)
+
+    new(log_Te, log_ne, 10 .^log_Te, 10 .^log_ne, "eV", "cm^-3")
     end
 end
 
@@ -126,7 +132,8 @@ end
     igrnd :: Union{Int64,Nothing}
     iptr :: Union{Int64,Nothing}
     Z :: Int64
-    data :: T
+    log_values :: T
+    values :: T
     function ADASRates(block::ADASBlock, header::ADASHeader)
         Z = get_block_attr(block.header,"Z1")
         igrd = get_block_attr(block.header,"IGRD")
@@ -137,19 +144,19 @@ end
             push!(tmp,parse.(Float64,[replace(r,"D" =>"e") for r in split(block.content[idx])])...)
             idx += 1
         end
-        data = reshape(tmp,header.n_Te, header.n_ne)
+        log_values = reshape(tmp,header.n_Te, header.n_ne)
         if verbose
              println("igrd = $igrd; iptr = $iptr; Z = $Z")
         end
-        new{typeof(data)}(igrd,iptr,Z,data)
+        new{typeof(log_values)}(igrd,iptr,Z,log_values, 10.0 .^log_values)
     end
 end
 
-@redef struct adf11Data
+@redef struct adf11Data{T}
     filepath :: String
     header :: ADASHeader
     axis :: ADASAxis
-    rates :: Dict{Int64,Vector{ADASRates}}
+    rates :: T
     units :: String
     function adf11Data(filepath::String; metastable=false)
         lines = read_adf11_file(filepath)
@@ -159,9 +166,7 @@ end
         header = ADASHeader(blocks[1])
         if metastable
             axis = ADASAxis(blocks[3], header )
-        else
-            axis = ADASAxis(blocks[2], header )
-        end
+       
 
         rates = Dict{Int64,Vector{ADASRates}}()
    
@@ -174,7 +179,20 @@ end
                 push!(rates[Z],ADASRates(block,header)) 
             end
         end
-        new(filepath,header, axis, rates, units)
+    
+        else
+        axis = ADASAxis(blocks[2], header )
+        rates = Dict{Int64,ADASRates}()
+            
+        for block in blocks    
+            
+            Z = get_block_attr(block.header,"Z1")
+            if Z != nothing
+                rates[Z] = ADASRates(block,header)
+            end
+        end
+    end
+        new{typeof(rates)}(filepath,header, axis, rates, units)
     end
 end
 
@@ -256,7 +274,7 @@ function get_adf11_database(;database_file = default_adf11_database_file, adf11_
     return load_database(database_file)
 end
 
-function retrieve_adf11_data(data; year::String="latest", type::String="scd", metastable::Bool=false)
+function retrieve_adf11_element_formadata(data; year::String="latest", type::String="scd", metastable::Bool=false)
     type = lowercase(type)
     types = collect(keys(adf11_types))
     if !(type in types)
