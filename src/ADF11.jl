@@ -144,7 +144,7 @@ end
             push!(tmp,parse.(Float64,[replace(r,"D" =>"e") for r in split(block.content[idx])])...)
             idx += 1
         end
-        log_values = reshape(tmp,header.n_Te, header.n_ne)
+        log_values = reshape(tmp,header.n_ne, header.n_Te)
         if verbose
              println("igrd = $igrd; iptr = $iptr; Z = $Z")
         end
@@ -222,7 +222,7 @@ end
 
 function get_list_adf11file(directory)
     adf11_files = Dict{String,adf11File}()
-    println("Parsing the directory $directory")
+    if verbose; println("Parsing the directory $directory"); end
     for (root, dirs, files) in walkdir(directory)
         for file in files
             if occursin(".dat",file)
