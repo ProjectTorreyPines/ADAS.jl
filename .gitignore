@@ -1,1 +1,3 @@
 /Manifest.toml
+data/*.bson
+data/adf11.bson

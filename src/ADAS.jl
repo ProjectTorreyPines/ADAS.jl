@@ -66,13 +66,25 @@ colors[2] = :green
 colors[3] = :magenta
 function print_dict_keys(dict;level=0)
     for (k,v) in dict
-        printstyled(" "^level,"- $k\n";color = colors[level])
+        printstyled("   "^level,"- $k\n";color = colors[level])
         if typeof(v) <: Dict{Any,Any}
             print_dict_keys(v,level=level+1)
         end
     end
 end
 
+function show_database(element; adas_type="adf11")
+    database = retrieve_database(adas_type)
+    if !(lowercase(element) in collect(keys(database)))
+        println("Cannot find element '$element' in database")
+        println("Elements available are: ", collect(keys(database)))
+        return
+    else
+        println("------ Element: $element --------")
+        print_dict_keys(database[lowercase(element)])
+        println("---------------------------------")
+    end
+end
 function save_database(database,database_file)
     println("Saving database into $database_file")
     bson(database_file, database)

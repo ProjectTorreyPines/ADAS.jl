@@ -9,6 +9,7 @@ const adf11_types = Dict("acd" => "effective recombination",
 "brs"=> "continuum spectral bremstrahlung",
 "fis"=> "sensitivity in the SXR range",
 "pbs"=> "impurity bremsstrahlung in SXR range, also included in prs files")
+
 function show_adf11_types()
     println("----------- adf11 types ------------")
     for (k,v) in adf11_types
@@ -103,6 +104,8 @@ end
 @redef struct ADASAxis
     log_Te :: Vector{Float64}
     log_ne :: Vector{Float64}
+    Te :: Vector{Float64}
+    ne :: Vector{Float64}
     function ADASAxis(block::ADASBlock, header :: ADASHeader)
     log_Te = Vector{Float64}()
     log_ne = Vector{Float64}()
