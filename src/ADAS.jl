@@ -30,7 +30,7 @@ end
 
 function retrieve_element_data(args...; adas_type = "adf11", kwargs...)
     if adas_type == "adf11"
-        return retrieve_adf11_elemnt_data(args...;kwargs...)
+        return retrieve_adf11_element_data(args...;kwargs...)
     else
         error("getting data of type $adas_type is not implemented yet...")
     end

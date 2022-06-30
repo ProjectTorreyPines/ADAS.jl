@@ -274,7 +274,7 @@ function get_adf11_database(;database_file = default_adf11_database_file, adf11_
     return load_database(database_file)
 end
 
-function retrieve_adf11_element_formadata(data; year::String="latest", type::String="scd", metastable::Bool=false)
+function retrieve_adf11_element_data(data; year::String="latest", type::String="scd", metastable::Bool=false)
     type = lowercase(type)
     types = collect(keys(adf11_types))
     if !(type in types)
