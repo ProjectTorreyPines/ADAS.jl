@@ -77,3 +77,4 @@ function retrieve_adf11_element_data(data; year::String="latest", type::String="
 
 end
 
+data_type(data::adf11File{T}) where T = T 

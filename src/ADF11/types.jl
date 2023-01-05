@@ -1,23 +1,23 @@
 
-abstract type Ionization end 
-abstract type Recombination end
-abstract type ContinuumRadiation end
-abstract type LineRadiation end
-abstract type ChargeExchange end 
-abstract type ChargeExchangeRadiation end 
-abstract type SXRLineRadiation  end 
-abstract type SXRContinuumRadiation  end
-abstract type Bremstrahlung end
-abstract type SXRSensitivity end
-abstract type SXRBremstrahlung end 
-abstract type MeanIonisationPotential end 
-abstract type CrossCouplingCoeffs end
-abstract type ParentCrossCouplingCoeffs end
-abstract type MeanChargeStateSquared end
-abstract type MeanChargeState end
+abstract type Ionization <: ADASRate end 
+abstract type Recombination <: ADASRate end
+abstract type ContinuumRadiation <: ADASRate end
+abstract type LineRadiation<: ADASRate end
+abstract type ChargeExchange<: ADASRate end 
+abstract type ChargeExchangeRadiation<: ADASRate end 
+abstract type SXRLineRadiation<: ADASRate  end 
+abstract type SXRContinuumRadiation<: ADASRate  end
+abstract type Bremstrahlung<: ADASRate end
+abstract type SXRSensitivity<: ADASRate end
+abstract type SXRBremstrahlung<: ADASRate end 
+abstract type MeanIonisationPotential<: ADASRate end 
+abstract type CrossCouplingCoeffs<: ADASRate end
+abstract type ParentCrossCouplingCoeffs<: ADASRate end
+abstract type MeanChargeStateSquared<: ADASRate end
+abstract type MeanChargeState<: ADASRate end
 const adf11_types = Dict(
-                        "acd" => (Ionization,"effective recombination"),
-                        "scd" => (Recombination,"effective ionization"),
+                        "acd" => (Recombination,"effective recombination"),
+                        "scd" => (Ionization,"effective ionization"),
                         "prb" => (ContinuumRadiation , "continuum radiation"),
                         "plt" => (LineRadiation,"line radiation"),
                         "ccd" => (ChargeExchange ,"thermal charge exchange"),
@@ -80,7 +80,7 @@ struct ADASAxis
     
 end
 
-function ADASAxis(block::ADASBlock, header :: ADASHeader)
+function ADASAxis(block::ADASBlock, header :: ADASHeader; unit_ne="m^-3") #TODO: use unitful to manage units
     log_Te = Vector{Float64}()
     log_ne = Vector{Float64}()
     idx = 1
@@ -92,8 +92,11 @@ function ADASAxis(block::ADASBlock, header :: ADASHeader)
         push!(log_Te,parse.(Float64,[t for t in split(block.content[idx])])...)
         idx += 1
     end
-
-    ADASAxis(log_Te, log_ne, 10 .^log_Te, 10 .^log_ne, "eV", "cm^-3")
+    if unit_ne == "m^-3"
+        log_ne .= log_ne .+ 6.0
+    end
+    ADASAxis(log_Te, log_ne, 10 .^log_Te, 10 .^log_ne, "eV", unit_ne)
+    
 end
 
 struct ADASRates{T} 
@@ -104,7 +107,8 @@ struct ADASRates{T}
     values :: T
 end
 
-function ADASRates(block::ADASBlock, header::ADASHeader)
+function ADASRates(block::ADASBlock, header::ADASHeader; unit_rates = "m^3")
+
     Z = get_block_attr(block.header,"Z1")
     igrd = get_block_attr(block.header,"IGRD")
     iptr = get_block_attr(block.header,"IPRT")
@@ -114,9 +118,12 @@ function ADASRates(block::ADASBlock, header::ADASHeader)
         push!(tmp,parse.(Float64,[replace(r,"D" =>"e") for r in split(block.content[idx])])...)
         idx += 1
     end
-    log_values = reshape(tmp,header.n_ne, header.n_Te)
+    log10_values = reshape(tmp,header.n_ne, header.n_Te)
     @debug "igrd = $igrd; iptr = $iptr; Z = $Z"
-    ADASRates(igrd,iptr,Z,log_values, 10.0 .^log_values)
+    if unit_rates == "m^3"
+        log10_values .= log10_values .- 6.0
+    end
+    ADASRates(igrd,iptr,Z,log10_values, 10.0 .^log10_values)
 end
 
 
@@ -169,6 +176,7 @@ struct adf11File{T} <: ADASFile{T}
     metastable :: Bool
     type ::  String
     data :: adf11Data
+    md5 :: Vector{UInt8}
 end
 
 function adf11File(filename::String, filepath::String)
@@ -182,7 +190,13 @@ function adf11File(filename::String, filepath::String)
         metastable = false
     end
     data = adf11Data(filepath; metastable = metastable) 
-    adf11File{get_type_adf11(type)}(name, element,filepath,year,metastable,type,data)
+    adf11File{get_type_adf11(type)}(name, element,filepath,year,metastable,type,data, checksum(filepath))
+end
+
+function checksum(filepath)
+    open(filepath) do f
+        Array(md5(f))
+    end
 end
 
 const ADF11 = Dict{String,Dict{String,Dict{String,Dict{String,adf11File}}}}

@@ -23,22 +23,21 @@ function retrieve_element_data(element::String, data , adas_type::Symbol)
     
     if element ∉ keys(data)
         @debug "typeof(get_element_data(element,ADASdata.paths,adas_type)) = $(typeof(get_element_data(element,ADASdata.paths,adas_type)))"
+        @debug "keys(data)=$(keys(data)) \n data = $(typeof(data))\n element=$(element)\n $(get_element_data(element,ADASdata.paths,adas_type))"
         data[element] = get_element_data(element,ADASdata.paths,adas_type)
     end
     @assert element ∈ keys(data) "Cannot find element '$element' in database. Elements available are: $(collect(keys(data)))"
     return data[element]
 end
 
-
-
-function retrieve_element_data(args...; adas_type = :adf11, kwargs...)
+function retrieve_element_data(args...; adas_type::Symbol = :adf11, kwargs...)
     if adas_type == :adf11
         return retrieve_adf11_element_data(args...;kwargs...)
     else
         error("getting data of type $adas_type is not implemented yet...")
     end
 end
-retrieve_ADAS_data(element::String; year::String="latest", type::String="scd", metastable::Bool=false, adas_type::Symbol=:adf11) = retrieve_element_data(ADASdata(element,adas_type); year= year, type= type, metastable = metastable, adas_type = adas_type)
+retrieve_ADAS_data(element::String; year::String="latest", type::String="scd", metastable::Bool=false, adas_type=:adf11) = retrieve_element_data(ADASdata(element,adas_type); year= year, type= type, metastable = metastable, adas_type = adas_type)
 
 function get_element_data(element,paths,adas_type)
     filepath = get_data_filepath( element,paths["parsed_data"][adas_type])
@@ -133,13 +132,13 @@ function make_database(element, paths, adas_type)
     dump_data(element, paths["parsed_data"][adas_type], data)
 end
 
-function build_database()
+function build_ADAS_database()
     for adas_type in [f for f in fieldnames(ADASData) if f != :paths]
-        build_database(ADASdata.paths,adas_type)
+        build_ADAS_database(ADASdata.paths,adas_type)
     end
 end
 
-function build_database(paths,adas_type)
+function build_ADAS_database(paths,adas_type)
         println("buidling database for $adas_type files")
         data = get_database(paths["raw_data"][adas_type],adas_type)
         dump_data(paths["parsed_data"][adas_type], data)
@@ -157,7 +156,7 @@ end
 
 function Base.show(io::IO, ::MIME"text/plain", file::adf11File)
     println(io," ADAS adf11 data: $(file.name)")
-    for field in [f for f in fieldnames(adf11File) if f != :data]
+    for field in [f for f in fieldnames(adf11File) if f != :data && f!=:md5]
     println(io," "^1*"└─ $(field): $(getfield(file,field))")
     end
 end
