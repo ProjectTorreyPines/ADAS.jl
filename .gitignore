@@ -35,3 +35,8 @@ parsed_data/adf11/xe.bson
 .DS_Store
 .DS_Store
 .DS_Store
+.DS_Store
+data/adf11/.DS_Store
+.DS_Store
+.gitignore
+data/adf11/.DS_Store
