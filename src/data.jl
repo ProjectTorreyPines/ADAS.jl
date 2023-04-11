@@ -20,7 +20,8 @@ function (ADASdata::ADASData)(element, adas_type::Symbol)
     retrieve_element_data(element, getfield(ADASdata, adas_type), adas_type)
 end
 
-function retrieve_element_data(element::String, data, adas_type::Symbol)
+function retrieve_element_data(element::Union{String,Symbol}, data, adas_type::Symbol)
+    element = string(element) 
     element = lowercase(element)
     @debug "looking for $element in $(keys(data))"
 
