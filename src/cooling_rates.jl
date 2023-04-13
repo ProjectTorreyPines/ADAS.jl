@@ -64,6 +64,10 @@ struct AbundanceFraction{U,I,A,S}
     imp :: S
 end
 
+struct AbundanceFractions{V<:Vector{<:AbundanceFraction}}
+    afs :: V
+end
+
 struct RadiationRates{U,I,S}
     rates :: U
     rates_grid :: Array{Float64,3}
@@ -92,6 +96,10 @@ struct EffectiveCharge{Z,T,AF<:AbundanceFraction}
     af :: AF
 end
 
+struct EffectiveCharges{V<:Vector{<:EffectiveCharge}}
+    ecs :: V
+end
+
 function get_effective_charge(imp::Union{String, Symbol}; kw...)
     a = get_abundance_fraction(imp; kw...)
     nZ, nne, nTe = size(a.fZ_grid)
@@ -107,12 +115,16 @@ function get_effective_charge(imp::Union{String, Symbol}; kw...)
     return EffectiveCharge(t_,t_grid,a)
 end
 
-get_effective_charge(imps::Vector{<:Union{String, Symbol}}; kw...) = [get_abundance_fraction(imp; kw...) for imp in imps] 
+get_effective_charge(imps::Vector{<:Union{String, Symbol}}; kw...) = EffectiveCharges([get_effective_charge(imp; kw...) for imp in imps])
 
 (ec::EffectiveCharge{Z,T,AF})(fraction,ne,Te) where {Z,T,AF<:AbundanceFraction} = 1.0 .+ fraction  .* ec.t(ne,Te)
-function (ecs::Vector{<:EffectiveCharge})(fractions::Vector{Float64},ne,Te)
-    @assert length(fractions) == length(ecs) "provide a fraction for each species: $([ec.af.imp in ecs])"
-    return 1.0 .+ sum([f .* ec.t(ne,Te) for (f,ec) in zip(fractions,ecs)])
+function (e::EffectiveCharges)(fractions::Vector{Float64},ne,Te)
+    @assert length(fractions) == length(e.ecs) "provide a fraction for each species: $([ec.af.imp for ec in e.ecs])"
+    if length(fractions) == 0
+        return 1.0
+    else
+        return 1.0 .+ sum([f .* ec.t(ne,Te) for (f,ec) in zip(fractions,e.ecs)])
+    end
 end 
 function get_abundance_fraction(imp::Union{String, Symbol}; kw...)
     scd = retrieve_ADAS_data(imp;type="scd", kw...)
@@ -142,45 +154,4 @@ end
 
 
 
-# #= ========================= =#
-# #  ActorDivertorHeatFluxTarget #
-# #= ========================= =#
 
-# import BoundaryPlasmaModels
-
-# #==========#
-
-# mutable struct ActorDivertorHeatFluxTarget <: PlasmaAbstractActor
-#     dd::IMAS.dd
-#     par::BoundaryPlasmaModels.DivertorHeatFluxTargetModelParameters
-#     model::Union{Nothing,BoundaryPlasmaModels.DivertorHeatFluxModel}
-# end
-
-# # """
-# # ActorDivertorHeatFluxTarget(dd::IMAS.dd, act::ParametersAllActors; kw...)
-
-# # doc
-# # """
-# # function ActorDivertorHeatFluxTarget(dd::IMAS.dd, act::ParametersAllActors; kw...)
-# #     par = act.ActorDivertorHeatFluxTarget(kw...)
-# #     actor = ActorDivertorHeatFluxTarget(dd, par)
-# #     step(actor)
-# #     finalize(actor)
-# #     return actor
-# # end
-
-# # function ActorDivertorHeatFluxTarget(dd::IMAS.dd, par::BoundaryPlasmaModels.FUSEparameters__ActorPlasmaFacingSurfaces; kw...)
-# #     logging_actor_init(ActorPlasmaFacingSurfaces)
-# #     par = par(kw...)
-# #     return ActorDivertorHeatFluxTarget(dd, par, nothing)
-# # end
-
-# # function _step(actor::ActorDivertorHeatFluxTarget)
-# #     actor.model = BoundaryPlasmaModels.DivertorHeatFluxModel(actor.dd,actor.par)
-# #     return actor
-# # end
-
-# # function _finalize(actor::ActorDivertorHeatFluxTarget; kw...)
-# #     BoundaryPlasmaModels.export2dd(actor.dd, actor.heatflux_model; kw...)
-# #     actor
-# # end
