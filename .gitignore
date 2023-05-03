@@ -1,5 +1,3 @@
-/Manifest.toml
-.DS_Store
 parsed_data/adf11/al.bson
 parsed_data/adf11/ar.bson
 parsed_data/adf11/b.bson
@@ -31,12 +29,10 @@ parsed_data/adf11/si.bson
 parsed_data/adf11/t.bson
 parsed_data/adf11/w.bson
 parsed_data/adf11/xe.bson
+
+/Manifest.toml
+
+# editors
+/.vscode/*
+.ipynb_checkpoints
 .DS_Store
-.DS_Store
-.DS_Store
-.DS_Store
-.DS_Store
-data/adf11/.DS_Store
-.DS_Store
-.gitignore
-data/adf11/.DS_Store

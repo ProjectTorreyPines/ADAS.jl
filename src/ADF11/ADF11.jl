@@ -1,10 +1,11 @@
 
 
 include("types.jl")
+
 include("parser.jl")
 
-function get_database(adf11_files :: Vector{<:adf11File})
-database = Dict{String,Dict{String,Dict{String,Dict{String,adf11File}}}}()
+function get_database(adf11_files::Vector{<:adf11File})
+    database = Dict{String,Dict{String,Dict{String,Dict{String,adf11File}}}}()
     for file in adf11_files
         if !(file.element in collect(keys(database)))
             database[file.element] = Dict{String,Dict{String,Dict{String,adf11File}}}()
@@ -21,13 +22,9 @@ database = Dict{String,Dict{String,Dict{String,Dict{String,adf11File}}}}()
             database[file.element][file.type][file.year]["ground"] = file
         end
 
-    end  
+    end
     return database
 end
-
-
-
-
 
 # function get_adf11_database(;database_file = default_adf11_database_file, adf11_directory = default_adf11_directory)
 #     if !isfile(database_file)
@@ -59,7 +56,7 @@ function retrieve_adf11_element_data(data; year::String="latest", type::String="
 
     data = data[year]
 
-    if metastable 
+    if metastable
         if !("metastable" in collect(keys(data)))
             println("Cannot find metastable in data")
             return nothing
@@ -77,4 +74,4 @@ function retrieve_adf11_element_data(data; year::String="latest", type::String="
 
 end
 
-data_type(data::adf11File{T}) where T = T 
+data_type(data::adf11File{T}) where {T} = T
