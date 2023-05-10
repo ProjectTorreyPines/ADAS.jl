@@ -36,3 +36,11 @@ parsed_data/adf11/xe.bson
 /.vscode/*
 .ipynb_checkpoints
 .DS_Store
+.gitignore
+data/adf11/.DS_Store
+.DS_Store
+.gitignore
+data/adf11/.DS_Store
+data/.DS_Store
+data/adf11/.DS_Store
+.DS_Store
