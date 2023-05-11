@@ -115,7 +115,7 @@ function get_effective_charge(imp::Union{String, Symbol}; kw...)
     return EffectiveCharge(t_,t_grid,a)
 end
 
-get_effective_charge(imps::Vector{<:Union{String, Symbol}}; kw...) = EffectiveCharges([get_effective_charge(imp; kw...) for imp in imps])
+get_effective_charge(imps::Vector{<:Union{String, Symbol}}; kw...) = EffectiveCharges(convert(Vector{EffectiveCharge},[get_effective_charge(imp; kw...) for imp in imps]))
 
 (ec::EffectiveCharge{Z,T,AF})(fraction,ne,Te) where {Z,T,AF<:AbundanceFraction} = 1.0 .+ fraction  .* ec.t(ne,Te)
 function (e::EffectiveCharges)(fractions::Vector{Float64},ne,Te)
