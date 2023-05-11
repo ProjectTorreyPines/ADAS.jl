@@ -78,7 +78,7 @@ show_ADAS_data(; adas_type=:adf11) = AbstractTrees.print_tree(get_database(ADASd
 
 function dump_data(element, directory, data)
     file_path = get_data_filepath(element, directory)
-    bson(file_path, data)
+    FileIO.save(file_path,data)
 end
 
 function dump_data(directory, data)
@@ -87,11 +87,11 @@ function dump_data(directory, data)
     end
 end
 
-get_data_filepath(element, directory) = joinpath(directory, "$element.bson")
+get_data_filepath(element, directory) = joinpath(directory, "$element.jld2")
 
 function load_data(path::String)
-    @debug "Loading bson file $path"
-    return BSON.load(path, @__MODULE__)
+    @debug "Loading jld2 file $path"
+    return FileIO.load(path) #BSON.load(path, @__MODULE__)
 end
 
 load_data(element, path::String) = load_data(get_data_filepath(element, path))
