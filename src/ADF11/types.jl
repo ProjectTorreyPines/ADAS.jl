@@ -78,7 +78,6 @@ struct ADASAxis
     ne::Vector{Float64}
     unit_Te::String
     unit_ne::String
-
 end
 
 function ADASAxis(block::ADASBlock, header::ADASHeader; unit_ne="m^-3") #TODO: use unitful to manage units
@@ -97,7 +96,6 @@ function ADASAxis(block::ADASBlock, header::ADASHeader; unit_ne="m^-3") #TODO: u
         log_ne .= log_ne .+ 6.0
     end
     ADASAxis(log_Te, log_ne, 10 .^ log_Te, 10 .^ log_ne, "eV", unit_ne)
-
 end
 
 struct ADASRates{T}
@@ -109,7 +107,6 @@ struct ADASRates{T}
 end
 
 function ADASRates(block::ADASBlock, header::ADASHeader; unit_rates="m^3")
-
     Z = get_block_attr(block.header, "Z1")
     igrd = get_block_attr(block.header, "IGRD")
     iptr = get_block_attr(block.header, "IPRT")
