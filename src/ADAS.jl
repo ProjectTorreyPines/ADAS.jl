@@ -4,7 +4,7 @@ using BSON
 using Logging
 using MD5
 import Term.Trees: Tree
-
+using AbstractTrees
 abstract type ADASRate end
 abstract type ADASFile{T} end
 struct ADASType{T} end
