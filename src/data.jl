@@ -130,7 +130,7 @@ function make_database(element, paths, adas_type)
 end
 
 function build_ADAS_database()
-    for adas_type in [f for f in fieldnames(ADASData) if f != :paths]
+    for adas_type in (f for f in fieldnames(ADASData) if f != :paths)
         build_ADAS_database(ADASdata.paths, adas_type)
     end
 end
