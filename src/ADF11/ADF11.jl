@@ -45,7 +45,7 @@ function retrieve_adf11_element_data(data; year::String="latest", type::String="
 
     data = data[type]
     if year == "latest"
-        year = sort(collect(keys(data)))[end]
+        year = sort!(collect(keys(data)))[end]
     end
 
     if !(lowercase(year) in collect(keys(data)))

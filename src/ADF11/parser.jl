@@ -35,7 +35,7 @@ end
 function get_units(comments::Vector{String})
     for c in comments
         m = match(Regex("IN UNITS OF"), c) # todo: capture directly units through regex
-        if m != nothing
+        if m !== nothing
             return string(split(comments[3], "IN UNITS OF")[end])
         end
     end
