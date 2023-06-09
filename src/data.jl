@@ -20,7 +20,8 @@ function (ADASdata::ADASData)(element, adas_type::Symbol)
     retrieve_element_data(element, getfield(ADASdata, adas_type), adas_type)
 end
 
-function retrieve_element_data(element::String, data, adas_type::Symbol)
+function retrieve_element_data(element::Union{String,Symbol}, data, adas_type::Symbol)
+    element = string(element) 
     element = lowercase(element)
     @debug "looking for $element in $(keys(data))"
 
@@ -42,6 +43,10 @@ function retrieve_element_data(args...; adas_type::Symbol=:adf11, kwargs...)
     end
 end
 
+function retrieve_ADAS_data(element::Symbol; kw...)
+    retrieve_ADAS_data(string(element); kw...)
+end
+
 function retrieve_ADAS_data(element::String; year::String="latest", type::String="scd", metastable::Bool=false, adas_type=:adf11)
     return retrieve_element_data(ADASdata(element, adas_type); year=year, type=type, metastable=metastable, adas_type=adas_type)
 end
@@ -61,32 +66,19 @@ colors[1] = :red
 colors[2] = :green
 colors[3] = :magenta
 
-function print_dict_keys(dict; level=0)
-    for (k, v) in dict
-        printstyled("   "^level, "- $k\n"; color=colors[level])
-        if typeof(v) <: Dict{Any,Any}
-            print_dict_keys(v, level=level + 1)
-        end
-    end
-end
+show_ADAS_data(element; adas_type=:adf11) = AbstractTrees.print_tree(ADASdata(element, adas_type)) 
+AbstractTrees.printnode(io::IO,a::ADASData) = printstyled("ADAS data: $(a.adf11.element)";bold=true)
+AbstractTrees.printnode(io::IO,a::Dict{String, Dict{String, adf11File}}) = printstyled("years")
+AbstractTrees.printnode(io::IO,a::Dict{String, Dict{String, Dict{String, ADAS.adf11File}}}) = printstyled("adf11")
+AbstractTrees.printnode(io::IO,a::Dict{String,ADAS.adf11File}) = nothing
 
-function show_ADAS_data(element; adas_type=:adf11)
-    data = ADASdata(element, adas_type)
-    t = Tree(data, title="ADAS data: $element",
-        title_style="magenta",
-        guides_style="yellow")
-    print(t)
-end
 
-function show_ADAS_data(; adas_type=:adf11)
-    for element in keys(get_database(ADASdata.paths["raw_data"][adas_type], adas_type))
-        show_ADAS_data(element; adas_type=adas_type)
-    end
-end
+show_ADAS_data(; adas_type=:adf11) = AbstractTrees.print_tree(get_database(ADASdata.paths["raw_data"][adas_type], adas_type))
+
 
 function dump_data(element, directory, data)
     file_path = get_data_filepath(element, directory)
-    bson(file_path, data)
+    FileIO.save(file_path,data)
 end
 
 function dump_data(directory, data)
@@ -95,11 +87,11 @@ function dump_data(directory, data)
     end
 end
 
-get_data_filepath(element, directory) = joinpath(directory, "$element.bson")
+get_data_filepath(element, directory) = joinpath(directory, "$element.jld2")
 
 function load_data(path::String)
-    @debug "Loading bson file $path"
-    return BSON.load(path, @__MODULE__)
+    @debug "Loading jld2 file $path"
+    return FileIO.load(path) #BSON.load(path, @__MODULE__)
 end
 
 load_data(element, path::String) = load_data(get_data_filepath(element, path))
@@ -138,7 +130,7 @@ function make_database(element, paths, adas_type)
 end
 
 function build_ADAS_database()
-    for adas_type in [f for f in fieldnames(ADASData) if f != :paths]
+    for adas_type in (f for f in fieldnames(ADASData) if f != :paths)
         build_ADAS_database(ADASdata.paths, adas_type)
     end
 end
@@ -161,12 +153,10 @@ function Base.show(io::IO, data::ADASData)
     print(io, "ADAS data: adf11: $(join(collect(keys(data.adf11)),"; "))")
 end
 
-function Base.show(io::IO, ::MIME"text/plain", file::adf11File)
-    println(io, " ADAS adf11 data: $(file.name)")
-    for field in [f for f in fieldnames(adf11File) if f != :data && f != :md5]
-        println(io, " "^1 * "└─ $(field): $(getfield(file,field))")
-    end
-end
+Base.show(io::IO, ::MIME"text/plain", file::adf11File) = AbstractTrees.print_tree(file;maxdepth=1, indicate_truncation = false)
+AbstractTrees.printnode(file::adf11File) = printstyled(io, "ADAS adf11 data: $(file.name)"; bold=true)
+AbstractTrees.children(file::adf11File) = Dict(f => getproperty(file,f) for f in propertynames(file) if f != :data && f != :md5)
+
 
 function Base.show(io::IO, data::adf11File)
     print(io, "ADAS data | adf11 : $(data.name) ")
