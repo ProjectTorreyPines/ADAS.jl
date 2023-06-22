@@ -7,13 +7,13 @@ include("parser.jl")
 function get_database(adf11_files::Vector{<:adf11File})
     database = Dict{String,Dict{String,Dict{String,Dict{String,adf11File}}}}()
     for file in adf11_files
-        if !(file.element in collect(keys(database)))
+        if !(file.element in keys(database))
             database[file.element] = Dict{String,Dict{String,Dict{String,adf11File}}}()
         end
-        if !(file.type in collect(keys(database[file.element])))
+        if !(file.type in keys(database[file.element]))
             database[file.element][file.type] = Dict{String,Dict{String,adf11File}}()
         end
-        if !(file.year in collect(keys(database[file.element][file.type])))
+        if !(file.year in keys(database[file.element][file.type]))
             database[file.element][file.type][file.year] = Dict{String,adf11File}()
         end
         if file.metastable
