@@ -19,16 +19,16 @@ function (ADASdata::ADASData)(element, adas_type::Symbol)
     @assert adas_type == :adf11 "getting data of type $adas_type is not implemented yet..."
     retrieve_element_data(element, getfield(ADASdata, adas_type), adas_type)
 end
-
-function retrieve_element_data(element::Union{String,Symbol}, data, adas_type::Symbol)
-    element = string(element) 
+retrieve_element_data(element::Symbol, data, adas_type::Symbol) = retrieve_element_data(string(element), data, adas_type)
+function retrieve_element_data(element::String, data, adas_type::Symbol)
+    element = string(element)
     element = lowercase(element)
     @debug "looking for $element in $(keys(data))"
 
     if element ∉ keys(data)
-        @debug "typeof(get_element_data(element,ADASdata.paths,adas_type)) = $(typeof(get_element_data(element,ADASdata.paths,adas_type)))"
-        @debug "keys(data)=$(keys(data)) \n data = $(typeof(data))\n element=$(element)\n $(get_element_data(element,ADASdata.paths,adas_type))"
-        data[element] = get_element_data(element, ADASdata.paths, adas_type)
+        #println("typeof(get_element_data(element,ADASdata.paths,adas_type)) = $(typeof(get_element_data(element,ADASdata.paths,adas_type)))")
+        #println("keys(data)=$(keys(data)) \n data = $(typeof(data))\n element=$(element)\n $(get_element_data(element,ADASdata.paths,adas_type))")
+        data[element] = get_element_data(element, ADASdata.paths, adas_type)[element]
     end
 
     @assert element ∈ keys(data) "Cannot find element '$element' in database. Elements available are: $(collect(keys(data)))"
@@ -51,13 +51,14 @@ function retrieve_ADAS_data(element::String; year::String="latest", type::String
     return retrieve_element_data(ADASdata(element, adas_type); year=year, type=type, metastable=metastable, adas_type=adas_type)
 end
 
-function get_element_data(element, paths, adas_type)
+function get_element_data(element::String, paths::Dict{String,Dict{Symbol,String}}, adas_type::Symbol)
     filepath = get_data_filepath(element, paths["parsed_data"][adas_type])
-    @debug "Getting element data from file: $filepath"
+    #println("Getting element data from file: $filepath")
     if !isfile(filepath)
         make_database(element, paths, adas_type)
     end
-    return load_data(filepath)
+    data = load_data(filepath)
+    return data
 end
 
 const colors = Dict{Int,Symbol}()
@@ -66,11 +67,11 @@ colors[1] = :red
 colors[2] = :green
 colors[3] = :magenta
 
-show_ADAS_data(element; adas_type=:adf11) = AbstractTrees.print_tree(ADASdata(element, adas_type)) 
-AbstractTrees.printnode(io::IO,a::ADASData) = printstyled("ADAS data: $(a.adf11.element)";bold=true)
-AbstractTrees.printnode(io::IO,a::Dict{String, Dict{String, adf11File}}) = printstyled("years")
-AbstractTrees.printnode(io::IO,a::Dict{String, Dict{String, Dict{String, ADAS.adf11File}}}) = printstyled("adf11")
-AbstractTrees.printnode(io::IO,a::Dict{String,ADAS.adf11File}) = nothing
+show_ADAS_data(element; adas_type=:adf11) = AbstractTrees.print_tree(ADASdata(element, adas_type))
+AbstractTrees.printnode(io::IO, a::ADASData) = printstyled("ADAS data: $(a.adf11.element)"; bold=true)
+AbstractTrees.printnode(io::IO, a::Dict{String,Dict{String,adf11File}}) = printstyled("years")
+AbstractTrees.printnode(io::IO, a::Dict{String,Dict{String,Dict{String,ADAS.adf11File}}}) = printstyled("adf11")
+AbstractTrees.printnode(io::IO, a::Dict{String,ADAS.adf11File}) = nothing
 
 
 show_ADAS_data(; adas_type=:adf11) = AbstractTrees.print_tree(get_database(ADASdata.paths["raw_data"][adas_type], adas_type))
@@ -78,7 +79,7 @@ show_ADAS_data(; adas_type=:adf11) = AbstractTrees.print_tree(get_database(ADASd
 
 function dump_data(element, directory, data)
     file_path = get_data_filepath(element, directory)
-    FileIO.save(file_path,data)
+    FileIO.save(file_path, data)
 end
 
 function dump_data(directory, data)
@@ -94,7 +95,7 @@ function load_data(path::String)
     return FileIO.load(path) #BSON.load(path, @__MODULE__)
 end
 
-load_data(element, path::String) = load_data(get_data_filepath(element, path))
+load_data(element::String, path::String) = load_data(get_data_filepath(element, path))
 
 function read_adas_file(filepath::String)
     @debug "Reading ADAS file: $filepath"
@@ -153,9 +154,9 @@ function Base.show(io::IO, data::ADASData)
     print(io, "ADAS data: adf11: $(join(collect(keys(data.adf11)),"; "))")
 end
 
-Base.show(io::IO, ::MIME"text/plain", file::adf11File) = AbstractTrees.print_tree(file;maxdepth=1, indicate_truncation = false)
+Base.show(io::IO, ::MIME"text/plain", file::adf11File) = AbstractTrees.print_tree(file; maxdepth=1, indicate_truncation=false)
 AbstractTrees.printnode(file::adf11File) = printstyled(io, "ADAS adf11 data: $(file.name)"; bold=true)
-AbstractTrees.children(file::adf11File) = Dict(f => getproperty(file,f) for f in propertynames(file) if f != :data && f != :md5)
+AbstractTrees.children(file::adf11File) = Dict(f => getproperty(file, f) for f in propertynames(file) if f != :data && f != :md5)
 
 
 function Base.show(io::IO, data::adf11File)
