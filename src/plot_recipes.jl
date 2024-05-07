@@ -8,6 +8,7 @@ using Colors
     for (i,Z_) in enumerate(af.Z)
     Z =  float.(Z_).+ 0 .* Te
     fZ = af.fZ.(Z,ne_, Te) 
+    title := "Abundance fraction $(af.imp) nₑ = $(ne) m⁻³"
     @series begin 
         seriestype  := :line
         color := colors[i]
@@ -16,7 +17,7 @@ using Colors
         xlabel := "Te [eV]"
         xscale := :log10
         ylabel := "fraction"
-        #label := "$(af.imp) Z=$Z_"
+        label := missing
         
         Te,fZ
     end
@@ -28,7 +29,7 @@ using Colors
         xlabel := "Te [eV]"
         xscale := :log10
         ylabel := "fraction"
-        #label := "$(af.imp) Z=$Z_"
+        label := missing
         
         Temax = Te[argmax(fZ)]
         [Temax,Temax],[0.0,1.0]
@@ -46,7 +47,7 @@ using Colors
         xlabel := "Te [eV]"
         xscale := :log10
         ylabel := "fraction"
-        #label := "$(af.imp) Z=$Z_"
+        label := missing
         markersize := 0
         Temax = Te[argmax(fZ)]
         [Temax],[ymax]
@@ -55,11 +56,14 @@ using Colors
 end
 end
 
-@recipe function rplot_dp(rr::RadiationRates; ne = 1e20, Te = [1:1:1000]..., ylims=[1e-35,1e-30])
+@recipe function rplot_dp(rr::RadiationRates; ne = 1e20, Zmin = 0, Zmax = 1000,Te = [1:1:1000]... , ylims=[1e-35,1e-30]) 
+
     colors = distinguishable_colors(length(rr.Z), [RGB(1,1,1), RGB(0,0,0)], dropseed=true)
     #colors = map(col -> (red(col), green(col), blue(col)), cols)
     ne_ = ne .+ 0 .* Te
-    for (i,Z_) in enumerate(rr.Z)
+    ZZ = filter(s->(s>=Zmin && s <= Zmax),rr.Z) 
+
+    for (i,Z_) in enumerate(ZZ)
     Z =  float.(Z_).+ 0 .* Te
     rates = rr.rates.(Z,ne_, Te) 
     @series begin 
@@ -68,9 +72,10 @@ end
         linestyle := :solid
         linewidth := 2.0
         xlabel := "Te [eV]"
+        label := "$(rr.imp)[Z=$Z_]"
         xscale := :log10
         yscale := :log10
-        ylabel := "radiation [W.cm^3]"
+        ylabel := "radiations [W.cm^3]"
         #label := "$(af.imp) Z=$Z_"
         Te,rates
     end
