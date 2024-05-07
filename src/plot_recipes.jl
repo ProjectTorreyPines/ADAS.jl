@@ -121,7 +121,7 @@ end
     
 end
 
-    @recipe function rplot_dp(ec::EffectiveCharge; ne = 1e20, fraction = [0.01:0.01:0.05]..., Te = [1:1:1000], ylims=[1.0,8.00])
+    @recipe function rplot_dp(ec::EffectiveCharge; ne = 1e20, fraction = collect(0.01:0.01:0.05), Te = collect(1:1:1000), ylims=[1.0,8.00])
         #colors = map(col -> (red(col), green(col), blue(col)), cols)
 
         for f in fraction
