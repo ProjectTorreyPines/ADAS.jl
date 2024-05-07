@@ -72,10 +72,10 @@ end
         linestyle := :solid
         linewidth := 2.0
         xlabel := "Te [eV]"
-        label := "$(rr.imp)[Z=$Z_]"
+        label := "$(rr.imp)[Z=$Z_,nₑ = $(ne) m⁻³]"
         xscale := :log10
         yscale := :log10
-        ylabel := "radiations [W.cm^3]"
+        ylabel := "radiation rate [W.cm^3]"
         #label := "$(af.imp) Z=$Z_"
         Te,rates
     end
