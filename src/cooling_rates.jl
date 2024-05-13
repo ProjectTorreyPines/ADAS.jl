@@ -96,6 +96,8 @@ struct EffectiveCharge{Z,T,AF<:AbundanceFraction}
     af :: AF
 end
 
+
+
 struct EffectiveCharges{V<:Vector{<:EffectiveCharge}}
     ecs :: V
 end
@@ -126,6 +128,35 @@ function (e::EffectiveCharges)(fractions::Vector{Float64},ne,Te)
         return 1.0 .+ sum([f .* ec.t(ne,Te) for (f,ec) in zip(fractions,e.ecs)])
     end
 end 
+
+
+struct Zeff{Z,T,AF<:AbundanceFraction}
+    t::Z
+    t_grid::T
+    af::AF
+end
+
+
+
+function get_Zeff(imp::Union{String,Symbol}; kw...)
+    a = get_abundance_fraction(imp; kw...)
+    nZ, nne, nTe = size(a.fZ_grid)
+    nZ = nZ - 1
+    t = zeros(nZ, nne, nTe)
+    for Z = 1:nZ
+        t[Z, :, :] = a.fZ_grid[Z+1, :, :] .* (Z .^ 2)
+    end
+    t_grid = sum(t; dims=1)[1, :, :]
+    Te = a.Te
+    ne = a.ne
+    t_ = Interpolations.linear_interpolation((ne, Te), t_grid, extrapolation_bc=Interpolations.Flat())
+    return Zeff(t_, t_grid, a)
+end
+
+(zeff::Zeff{Z,T,AF})(fraction, ne, Te) where {Z,T,AF<:AbundanceFraction} = 1.0 - fraction + fraction .* zeff.t(ne, Te)
+
+
+
 function get_abundance_fraction(imp::Union{String, Symbol}; kw...)
     scd = retrieve_ADAS_data(imp;type="scd", kw...)
     acd = retrieve_ADAS_data(imp;type="acd", kw...)
