@@ -1,3 +1,9 @@
+#=
+Author: Jerome Guterl (guterlj@fusion.gat.com)
+Company: General Atomics
+ADAS.jl (c) 2024
+=#
+
 function get_block_attr(block_header::String, attr::String; outputformat=Int64)
     rg = Regex("$attr\\s*=\\s*([\\d]+)")
     m = match(rg, block_header)

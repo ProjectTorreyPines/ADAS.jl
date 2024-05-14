@@ -1,3 +1,9 @@
+#=
+Author: Jerome Guterl (guterlj@fusion.gat.com)
+Company: General Atomics
+ADAS.jl (c) 2024
+=#
+
 struct Lz_ADAS{U,T,V,F,S}
     ne :: U
     Te :: U

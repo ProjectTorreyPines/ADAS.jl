@@ -1,3 +1,9 @@
+#=
+Author: Jerome Guterl (guterlj@fusion.gat.com)
+Company: General Atomics
+ADAS.jl (c) 2024
+=#
+
 
 abstract type Ionization <: ADASRate end
 abstract type Recombination <: ADASRate end

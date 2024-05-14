@@ -1,3 +1,9 @@
+#=
+Author: Jerome Guterl (guterlj@fusion.gat.com)
+Company: General Atomics
+ADAS.jl (c) 2024
+=#
+
 using RecipesBase
 using Colors
 @recipe function rplot_dp(af::AbundanceFraction; ne = 1e20, Te = [1:1:1000]..., ylims=[-0.1,1.2])

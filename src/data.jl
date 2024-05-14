@@ -1,4 +1,8 @@
-
+#=
+Author: Jerome Guterl (guterlj@fusion.gat.com)
+Company: General Atomics
+ADAS.jl (c) 2024
+=#
 
 const parsed_data_directory = Dict(:adf11 => joinpath(@__DIR__, "../parsed_data/adf11"))
 
