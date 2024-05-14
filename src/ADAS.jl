@@ -15,6 +15,6 @@ include("utils.jl")
 include("plot_recipes.jl")
 
 export ADASdata
-export retrieve_ADAS_data, show_ADAS_data, build_ADAS_database, show_adf11_types, 
+export retrieve_ADAS_data, show_ADAS_data, build_ADAS_database, show_adf11_types
 
 end
