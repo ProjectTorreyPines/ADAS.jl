@@ -121,7 +121,7 @@ end
     
 end
 
-    @recipe function rplot_dp(zeff::Zeff; ne = 1e20, fraction = collect(0.01:0.01:0.05), Te = collect(1:1:1000), ylims=[1.0,8.00])
+    @recipe function rplot_dp(zeff::Zeff; ne = 1e20, fraction = [0.0025, 0.005, 0.0075, 0.01, 0.015, 0.02], Te = collect(1:1:1000), ylims=[1.0,8.00])
         #colors = map(col -> (red(col), green(col), blue(col)), cols)
 
         for f in fraction
@@ -131,6 +131,7 @@ end
             linewidth := 2.0
             xlabel := "Te [eV]"
             xscale := :log10
+            ylim := ylims
             title := "Z_{eff} C-E for $(zeff.af.imp)"
             ylabel := "Z_{eff}"
             label := "xi_{$(zeff.af.imp)} = $f"

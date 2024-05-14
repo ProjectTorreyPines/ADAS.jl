@@ -20,8 +20,8 @@ Additional features
 using ADAS
 using Plots
 # retrieve effective charge state for Kr
-ec = ADAS.get_effective_charge(:Kr)
-plot(ec)
+zeff = ADAS.get_Zeff(:Kr)
+plot(zeff)
 # retrieve cooling rate for W
 cr = ADAS.get_cooling_rates(:W)
 plot(cr)

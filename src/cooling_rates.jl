@@ -187,6 +187,60 @@ function get_abundance_fraction(imp::Union{String, Symbol}; kw...)
     return AbundanceFraction(fZ, fZ_, Te, ne, Z, scd, acd, imp)
 end
 
+struct IonizationRate{U,R}
+    scd::U
+    Te::Vector{Float64}
+    ne::Vector{Float64}
+    Z::Vector{Int64}
+    rate::R
+    imp::Symbol
+end
+
+function get_ionization_rate(imp::Union{String,Symbol}; kw...)
+    scd = retrieve_ADAS_data(imp; type="scd", kw...)
+
+    ndens = length(scd.data.axis.ne)
+    ntemp = length(scd.data.axis.Te)
+    nZ = length(scd.data.rates)
+    rate = zeros(nZ, ndens, ntemp)
+
+    for Z in 1:nZ
+        rate[Z, :, :] .=  scd.data.rates[Z].values[:, :]
+    end
+    Te = scd.data.axis.Te
+    ne = scd.data.axis.ne
+    Z = collect(0:nZ-1)
+    rate_ = Interpolations.linear_interpolation((float.(Z), ne, Te), rate, extrapolation_bc=Interpolations.Flat())
+    return IonizationRate(scd, Te,ne, Z, rate_, imp)
+end
+
+struct RecombinationRate{U,R}
+    acd::U
+    Te::Vector{Float64}
+    ne::Vector{Float64}
+    Z::Vector{Int64}
+    rate::R
+    imp::Symbol
+end
+
+function get_recombination_rate(imp::Union{String,Symbol}; kw...)
+    acd = retrieve_ADAS_data(imp; type="acd", kw...)
+
+    ndens = length(acd.data.axis.ne)
+    ntemp = length(acd.data.axis.Te)
+    nZ = length(acd.data.rates)
+    rate = zeros(nZ, ndens, ntemp)
+
+    for Z in 1:nZ
+        rate[Z, :, :] .= acd.data.rates[Z].values[:, :]
+    end
+    Te = acd.data.axis.Te
+    ne = acd.data.axis.ne
+    Z = collect(1:nZ)
+    rate_ = Interpolations.linear_interpolation((float.(Z), ne, Te), rate, extrapolation_bc=Interpolations.Flat())
+    return RecombinationRate(acd, Te, ne, Z, rate_, imp)
+end
+
 
 
 
