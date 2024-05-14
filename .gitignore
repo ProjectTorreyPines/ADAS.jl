@@ -1,25 +1,15 @@
 
 
-/Manifest.toml
 
+/Manifest.toml
 # editors
 /.vscode/*
 .ipynb_checkpoints
 .DS_Store
-.gitignore
 data/adf11/.DS_Store
-.DS_Store
-.gitignore
-data/adf11/.DS_Store
-data/.DS_Store
-data/adf11/.DS_Store
-.DS_Store
 parsed_data/*
 .DS_Store
 data/.DS_Store
-.DS_Store
-data/.DS_Store
-data/adf11/.DS_Store
 .CondaPkg
 .micromamba
 .vscode
