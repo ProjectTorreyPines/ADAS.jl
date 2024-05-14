@@ -1,4 +1,4 @@
-[![CI](https://github.com/ProjectTorreyPines/ADAS.jl/actions/workflows/CI.yml/badge.svg?branch=master&event=workflow_run)](https://github.com/ProjectTorreyPines/ADAS.jl/actions/workflows/CI.yml)
+[![CI](https://github.com/ProjectTorreyPines/ADAS.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/ProjectTorreyPines/ADAS.jl/actions/workflows/CI.yml)
 
 # ADAS.jl
 
