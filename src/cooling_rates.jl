@@ -118,11 +118,11 @@ function get_Zeff(imp::Union{String,Symbol}; kw...)
     return Zeff(t_, t_grid, a,imp)
 end
 
-get_Zeff(imps::Vector{<:Union{String,Symbol}}; kw...) = Zeffs(convert(Vector{EffectiveCharge}, [get_Zeff(imp; kw...) for imp in imps]))
+get_Zeff(imps::Vector{<:Union{String,Symbol}}; kw...) = Zeffs(convert(Vector{Zeff}, [get_Zeff(imp; kw...) for imp in imps]))
 
 (zeff::Zeff{Z,T,AF})(fraction, ne, Te) where {Z,T,AF<:AbundanceFraction} = 1.0 .+ fraction .* zeff.t(ne, Te)
 function (zeffs::Zeffs)(fractions::Vector{Float64}, ne, Te)
-    @assert length(fractions) == length(e.ecs) "provide a fraction for each species: $([zeff.af.imp for zeff in zeffs.zeffs])"
+    @assert length(fractions) == length(zeffs.zeffs) "provide a fraction for each species: $([zeff.af.imp for zeff in zeffs.zeffs])"
     if length(fractions) == 0
         return 1.0
     else
