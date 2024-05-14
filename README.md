@@ -1,6 +1,6 @@
 [![CI][ci-img]][ci-url] 
-[ci-img]: https://github.com/ProjectTorreyPines/ADAS.jl/.github/workflows/ci.yml/badge.svg?branch=main
-[ci-url]: https://github.com/ProjectTorreyPines/ADAS.jl/.github/workflows/ci.yml?query=workflow%3ACI
+[ci-img]: https://github.com/ProjectTorreyPines/ADAS.jl/.github/workflows/ci.yml/badge.svg?branch=master
+[ci-url]: https://github.com/ProjectTorreyPines/ADAS.jl/.github/workflows/ci.yml?query=workflow
 # ADAS.jl
 
 This package provides ADAS ionization, recombination, radiation, ... rates and some functions to retrieve cooling rates, Zeff and effective charge state.
