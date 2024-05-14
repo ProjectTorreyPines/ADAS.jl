@@ -2,6 +2,8 @@
 # Generated using the wonderful PkgTemplates.jl and altered slightly 
 name: CI
 on:
+  workflow_dispatch:
+    
   push:
     paths: # Specifying which files to run CI/CD for
     - src/**
