@@ -22,3 +22,4 @@ data/.DS_Store
 data/adf11/.DS_Store
 .CondaPkg
 .micromamba
+.vscode
