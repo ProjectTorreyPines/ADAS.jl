@@ -1,3 +1,6 @@
+
+![example workflow](https://github.com/github/docs/actions/workflows/CI.yml/badge.svg)
+![example workflow](https://github.com/github/docs/actions/workflows/TagBot.yml/badge.svg)
 # ADAS.jl
 
 This package provides ADAS ionization, recombination, radiation, ... rates and some functions to retrieve cooling rates, Zeff and effective charge state.
