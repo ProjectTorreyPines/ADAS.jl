@@ -13,6 +13,8 @@ data = retrieve_ADAS_data("C"; year="latest", type="scd", metastable=false)
 show_ADAS_data()
 # show  available ADAS data for C
 show_ADAS_data(:C)
+# show adf11 format available
+show_adf11_types()
 ```
 
 Additional features

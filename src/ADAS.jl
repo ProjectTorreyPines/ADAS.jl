@@ -11,10 +11,10 @@ struct ADASType{T} end
 
 include("ADF11/ADF11.jl")
 include("data.jl")
-include("cooling_rates.jl")
+include("utils.jl")
 include("plot_recipes.jl")
 
 export ADASdata
-export retrieve_ADAS_data, show_ADAS_data, build_ADAS_database
+export retrieve_ADAS_data, show_ADAS_data, build_ADAS_database, show_adf11_types, 
 
 end
