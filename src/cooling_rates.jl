@@ -53,7 +53,7 @@ function get_cooling_rates(imp::Union{String,Symbol})
     return  Lz_ADAS(plt.data.axis.ne,plt.data.axis.Te,Lz_,Lz_brem_,Lz_tot_,Lz,Lz_brem,Lz_tot ,ff,imp)
     end
 
-struct AbundanceFraction{U,I,A,S}
+struct AbundanceFraction{U,I,A}
     fZ :: U
     fZ_grid :: Array{Float64,3}
     Te :: Vector{Float64}
@@ -61,21 +61,21 @@ struct AbundanceFraction{U,I,A,S}
     Z :: Vector{Int64}
     scd :: I
     acd :: A
-    imp :: S
+    imp :: Symbol
 end
 
 struct AbundanceFractions{V<:Vector{<:AbundanceFraction}}
     afs :: V
 end
 
-struct RadiationRates{U,I,S}
+struct RadiationRates{U,I}
     rates :: U
     rates_grid :: Array{Float64,3}
     Te :: Vector{Float64}
     ne :: Vector{Float64}
     Z :: Vector{Int64}
     plt :: I
-    imp :: S
+    imp :: Symbol
 end
 
 function get_radiation_rates(imp::Union{String, Symbol}; kw...)
@@ -90,19 +90,20 @@ function get_radiation_rates(imp::Union{String, Symbol}; kw...)
     rates_ = Interpolations.linear_interpolation((float.(Z), ne,Te),rates, extrapolation_bc = Interpolations.Flat())
     return RadiationRates(rates_, rates, Te, ne, Z, plt, imp)
 end
-struct EffectiveCharge{Z,T,AF<:AbundanceFraction}
+struct Zeff{Z,T,AF<:AbundanceFraction}
     t :: Z
     t_grid :: T
     af :: AF
+    imp::Symbol
 end
 
 
 
-struct EffectiveCharges{V<:Vector{<:EffectiveCharge}}
-    ecs :: V
+struct Zeffs{V<:Vector{<:Zeff}}
+    zeffs :: V
 end
 
-function get_effective_charge(imp::Union{String, Symbol}; kw...)
+function get_Zeff(imp::Union{String,Symbol}; kw...)
     a = get_abundance_fraction(imp; kw...)
     nZ, nne, nTe = size(a.fZ_grid)
     nZ = nZ-1
@@ -114,46 +115,49 @@ function get_effective_charge(imp::Union{String, Symbol}; kw...)
     Te = a.Te
     ne = a.ne
     t_ = Interpolations.linear_interpolation((ne,Te),t_grid, extrapolation_bc = Interpolations.Flat())
-    return EffectiveCharge(t_,t_grid,a)
+    return Zeff(t_, t_grid, a,imp)
 end
 
-get_effective_charge(imps::Vector{<:Union{String, Symbol}}; kw...) = EffectiveCharges(convert(Vector{EffectiveCharge},[get_effective_charge(imp; kw...) for imp in imps]))
+get_Zeff(imps::Vector{<:Union{String,Symbol}}; kw...) = Zeffs(convert(Vector{EffectiveCharge}, [get_Zeff(imp; kw...) for imp in imps]))
 
-(ec::EffectiveCharge{Z,T,AF})(fraction,ne,Te) where {Z,T,AF<:AbundanceFraction} = 1.0 .+ fraction  .* ec.t(ne,Te)
-function (e::EffectiveCharges)(fractions::Vector{Float64},ne,Te)
-    @assert length(fractions) == length(e.ecs) "provide a fraction for each species: $([ec.af.imp for ec in e.ecs])"
+(zeff::Zeff{Z,T,AF})(fraction, ne, Te) where {Z,T,AF<:AbundanceFraction} = 1.0 .+ fraction .* zeff.t(ne, Te)
+function (zeffs::Zeffs)(fractions::Vector{Float64}, ne, Te)
+    @assert length(fractions) == length(e.ecs) "provide a fraction for each species: $([zeff.af.imp for zeff in zeffs.zeffs])"
     if length(fractions) == 0
         return 1.0
     else
-        return 1.0 .+ sum([f .* ec.t(ne,Te) for (f,ec) in zip(fractions,e.ecs)])
+        return 1.0 .+ sum([f .* zeff.t(ne,Te) for (f,zeff) in zip(fractions,zeffs.zeffs)])
     end
 end 
 
 
-struct Zeff{Z,T,AF<:AbundanceFraction}
+
+
+struct Zmean{Z,T,AF<:AbundanceFraction}
     t::Z
     t_grid::T
     af::AF
+    imp::Symbol
 end
 
 
 
-function get_Zeff(imp::Union{String,Symbol}; kw...)
+function get_Zmean(imp::Union{String,Symbol}; kw...)
     a = get_abundance_fraction(imp; kw...)
     nZ, nne, nTe = size(a.fZ_grid)
     nZ = nZ - 1
     t = zeros(nZ, nne, nTe)
     for Z = 1:nZ
-        t[Z, :, :] = a.fZ_grid[Z+1, :, :] .* (Z .^ 2)
+        t[Z, :, :] = a.fZ_grid[Z+1, :, :] .* (Z)
     end
     t_grid = sum(t; dims=1)[1, :, :]
     Te = a.Te
     ne = a.ne
     t_ = Interpolations.linear_interpolation((ne, Te), t_grid, extrapolation_bc=Interpolations.Flat())
-    return Zeff(t_, t_grid, a)
+    return Zmean(t_, t_grid, a,imp)
 end
 
-(zeff::Zeff{Z,T,AF})(fraction, ne, Te) where {Z,T,AF<:AbundanceFraction} = 1.0 - fraction + fraction .* zeff.t(ne, Te)
+(zmean::Zmean{Z,T,AF})( ne, Te) where {Z,T,AF<:AbundanceFraction} = zmean.t(ne, Te)
 
 
 

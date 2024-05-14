@@ -67,14 +67,14 @@ colors[1] = :red
 colors[2] = :green
 colors[3] = :magenta
 
-show_ADAS_data(element; adas_type=:adf11) = AbstractTrees.print_tree(ADASdata(element, adas_type))
+show_ADAS_data(element; adas_type=:adf11, kw...) = AbstractTrees.print_tree(ADASdata(element, adas_type); kw...)
 AbstractTrees.printnode(io::IO, a::ADASData) = printstyled("ADAS data: $(a.adf11.element)"; bold=true)
 AbstractTrees.printnode(io::IO, a::Dict{String,Dict{String,adf11File}}) = printstyled("years")
 AbstractTrees.printnode(io::IO, a::Dict{String,Dict{String,Dict{String,ADAS.adf11File}}}) = printstyled("adf11")
 AbstractTrees.printnode(io::IO, a::Dict{String,ADAS.adf11File}) = nothing
 
 
-show_ADAS_data(; adas_type=:adf11) = AbstractTrees.print_tree(get_database(ADASdata.paths["raw_data"][adas_type], adas_type))
+show_ADAS_data(; adas_type=:adf11, kw...) = AbstractTrees.print_tree(get_database(ADASdata.paths["raw_data"][adas_type], adas_type); kw...)
 
 
 function dump_data(element, directory, data)
