@@ -20,4 +20,5 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 [compat]
 FileIO = "1"
 JLD2 = "0.4"
+NumericalIntegration = "0.3"
 RecipesBase = "1"
