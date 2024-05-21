@@ -15,8 +15,8 @@ abstract type SXRLineRadiation <: ADASRate end
 abstract type SXRContinuumRadiation <: ADASRate end
 abstract type RecombinationBremsstrahlung <: ADASRate end
 abstract type SXRSensitivity <: ADASRate end
-abstract type SXRBremstrahlung <: ADASRate end
-abstract type Bremstrahlung <: ADASRate end
+abstract type SXRBremsstrahlung <: ADASRate end
+abstract type Bremsstrahlung <: ADASRate end
 abstract type MeanIonisationPotential <: ADASRate end
 abstract type CrossCouplingCoeffs <: ADASRate end
 abstract type ParentCrossCouplingCoeffs <: ADASRate end
@@ -32,9 +32,9 @@ const adf11_types = Dict(
     "prc" => (ChargeExchangeRadiation, "Line power due to charge transfer from thermal neutral hydrogen to dominant ions (Charge exchange emission)"),
     "pls" => (SXRLineRadiation, "Line power from selected transitions of dominant ions"),
     "prs" => (SXRContinuumRadiation, "continuum radiation in the SXR range"),
-    "brs" => (Bremstrahlung, "continuum spectral bremstrahlung"),
+    "brs" => (Bremsstrahlung, "continuum spectral bremstrahlung"),
     "fis" => (SXRSensitivity, "sensitivity in the SXR range"),
-    "pbs" => (SXRBremstrahlung, "impurity bremsstrahlung in SXR range, also included in prs files"),
+    "pbs" => (SXRBremsstrahlung, "impurity bremsstrahlung in SXR range, also included in prs files"),
     "ecd" => (MeanIonisationPotential, "Mean Ionisation Potential"),
     "qcd" => (CrossCouplingCoeffs, "Cross-coupling coefficients"),
     "xcd" => (ParentCrossCouplingCoeffs, "Parent Cross-coupling coefficients"),
