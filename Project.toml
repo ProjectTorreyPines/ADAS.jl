@@ -20,4 +20,6 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 [compat]
 Colors = "0.12"
 FileIO = "1"
+FileIO = "1"
+NumericalIntegration = "0.3"
 RecipesBase = "1"
