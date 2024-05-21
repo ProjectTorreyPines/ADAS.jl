@@ -13,9 +13,10 @@ abstract type ChargeExchange <: ADASRate end
 abstract type ChargeExchangeRadiation <: ADASRate end
 abstract type SXRLineRadiation <: ADASRate end
 abstract type SXRContinuumRadiation <: ADASRate end
-abstract type Bremstrahlung <: ADASRate end
+abstract type RecombinationBremsstrahlung <: ADASRate end
 abstract type SXRSensitivity <: ADASRate end
 abstract type SXRBremstrahlung <: ADASRate end
+abstract type Bremstrahlung <: ADASRate end
 abstract type MeanIonisationPotential <: ADASRate end
 abstract type CrossCouplingCoeffs <: ADASRate end
 abstract type ParentCrossCouplingCoeffs <: ADASRate end
@@ -23,13 +24,13 @@ abstract type MeanChargeStateSquared <: ADASRate end
 abstract type MeanChargeState <: ADASRate end
 
 const adf11_types = Dict(
-    "acd" => (Recombination, "effective recombination"),
-    "scd" => (Ionization, "effective ionization"),
-    "prb" => (ContinuumRadiation, "continuum radiation"),
-    "plt" => (LineRadiation, "line radiation"),
-    "ccd" => (ChargeExchange, "thermal charge exchange"),
-    "prc" => (ChargeExchangeRadiation, "thermal charge exchange continuum radiation"),
-    "pls" => (SXRLineRadiation, "line radiation in the SXR range"),
+    "acd" => (Recombination, "effective recombination coefficients"),
+    "scd" => (Ionization, "effective ionization coefficients"),
+    "prb" => (RecombinationBremsstrahlung, "Continuum and line power driven by recombination and Bremsstrahlung of dominant ions"),
+    "plt" => (LineRadiation, "Line power driven by excitation of dominant ions"),
+    "ccd" => (ChargeExchange, "Charge exchange effective recombination coefficients (with D)"),
+    "prc" => (ChargeExchangeRadiation, "Line power due to charge transfer from thermal neutral hydrogen to dominant ions (Charge exchange emission)"),
+    "pls" => (SXRLineRadiation, "Line power from selected transitions of dominant ions"),
     "prs" => (SXRContinuumRadiation, "continuum radiation in the SXR range"),
     "brs" => (Bremstrahlung, "continuum spectral bremstrahlung"),
     "fis" => (SXRSensitivity, "sensitivity in the SXR range"),
