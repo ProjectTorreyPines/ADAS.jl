@@ -250,3 +250,7 @@ end
 
 
 
+function meshgrid(x, y)
+    return first.(Iterators.product(x, y)), last.(Iterators.product(x, y))
+end
+export meshgrid

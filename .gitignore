@@ -13,3 +13,5 @@ data/.DS_Store
 .CondaPkg
 .micromamba
 .vscode
+examples/.jupyter/desktop-settings.json
+examples/.jupyter/desktop-workspaces/default-37a8.jupyterlab-workspace
