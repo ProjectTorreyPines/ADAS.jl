@@ -10,7 +10,7 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success' # Run only when workflow run has succeeded, i.e. all jobs have succeeded
     runs-on: ubuntu-latest
     steps:
-      uses: actions/github-script@v6
+      - uses: actions/github-script@v6
       with:
           github-token: ${{ secrets.PAT }} # Fine-grained GitHub PAT that was saved as repository secret
           script: |
