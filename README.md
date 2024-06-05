@@ -1,5 +1,7 @@
 [![CI](https://github.com/ProjectTorreyPines/ADAS.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/ProjectTorreyPines/ADAS.jl/actions/workflows/CI.yml)
 
+[![runtests_FUSE](https://github.com/ProjectTorreyPines/ADAS.jl/actions/workflows/runtest_FUSE.yml/badge.svg?branch=master)](https://github.com/ProjectTorreyPines/ADAS.jl/actions/workflows/runtest_FUSE.yml)
+
 # ADAS.jl
 
 This package provides ADAS ionization, recombination, radiation, ... rates and some functions to retrieve cooling rates, Zeff and effective charge state.
