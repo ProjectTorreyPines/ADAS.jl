@@ -1,4 +1,4 @@
-name: runtests_FUSE
+name: runtestsFUSE
 on:
   workflow_dispatch:
   workflow_run:
