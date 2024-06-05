@@ -6,21 +6,21 @@ on:
         types:
         - completed
 jobs:
-    trigger-repob-workflow:
-        if: github.event.workflow_run.conclusion == 'success' # Run only when workflow run has succeeded, i.e. all jobs have succeeded
-        runs-on: ubuntu-latest
-        steps:
-        - uses: actions/github-script@v6
-        with:
-            github-token: ${{ secrets.PAT }} # Fine-grained GitHub PAT that was saved as repository secret
-            script: |
-                await github.rest.actions.createworkflowDispatch({
-                owner: 'ProjectTorreyPines',
-                repo: 'FUSE.jl',
-                workflow_id: 'run_tests.yml',
-                ref: 'master'
-                })            
-        - name: Debug with tmate if failure + manual trigger + debug mode
-          if: ${{ failure() && github.event_name == 'workflow_dispatch' && inputs.debug }}
-          uses: mxschmitt/action-tmate@v3
-          timeout-minutes: 120
+trigger-repob-workflow:
+    if: github.event.workflow_run.conclusion == 'success' # Run only when workflow run has succeeded, i.e. all jobs have succeeded
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/github-script@v6
+    with:
+        github-token: ${{ secrets.PAT }} # Fine-grained GitHub PAT that was saved as repository secret
+        script: |
+            await github.rest.actions.createworkflowDispatch({
+            owner: 'ProjectTorreyPines',
+            repo: 'FUSE.jl',
+            workflow_id: 'run_tests.yml',
+            ref: 'master'
+            })            
+    - name: Debug with tmate if failure + manual trigger + debug mode
+      if: ${{ failure() && github.event_name == 'workflow_dispatch' && inputs.debug }}
+      uses: mxschmitt/action-tmate@v3
+      timeout-minutes: 120
