@@ -1,78 +1,25 @@
 name: runtests_FUSE
-
 on:
-  workflow_dispatch:
-    inputs:
-      debug:
-        type: boolean
-        required: false
-        default: false
-      bypass-cache:
-        type: boolean
-        required: false
-        default: false
-  push:
-    branches:
-      - master
-  pull_request:
-
-env:
-  PTP_READ_TOKEN: ${{ secrets.PTP_READ_TOKEN }}
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
-
+workflow_run:
+    workflows: [run_tests] # Name of GitHub workflow to trigger in target repository
+    types:
+    - completed
 jobs:
-  test:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        version:
-          - "1.x"
-        os:
-          - ubuntu-latest
-        arch:
-          - x64
-    env:
-        GKSwstype: 100 # disable Plots.jl interactive output
+trigger-repob-workflow:
+    if: github.event.workflow_run.conclusion == 'success' # Run only when workflow run has succeeded, i.e. all jobs have succeeded
+    runs-on: ubuntu-latest
     steps:
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v1
-        id: cpu-cores
-      - name: Set JULIA_NUM_THREADS=${{ steps.cpu-cores.outputs.count }}
-        run: echo "JULIA_NUM_THREADS=${{ steps.cpu-cores.outputs.count }}" >> $GITHUB_ENV
-      - uses: actions/checkout@v2
-      - name: Check if fuse bot commit
-        run: |
-          author=$(git log -1 --pretty=format:'%an')
-          if [ "$author" = "fuse bot" ]; then
-            echo "Skipping action due to commit made by 'fuse bot'."
-            exit 78
-          fi
-      - uses: julia-actions/setup-julia@v1
-        with:
-          version: ${{ matrix.version }}
-          arch: ${{ matrix.arch }}
-          show-versioninfo: true
-      - name: Generate cache key with date
-        id: cache-date
-        run: echo "::set-output name=date::$(date +%Y-%m-%d)"
-      - name: Cache Julia artifacts
-        uses: actions/cache@v2
-        if: github.event.inputs.bypass-cache != 'true'
-        with:
-          path: |
-            ~/.julia/artifacts
-            ~/.julia/packages
-            ~/.julia/compiled
-          key: ${{ runner.os }}-julia-${{ matrix.version }}-${{ steps.cache-date.outputs.date }}
-      - run: make install_ci_add
-      - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-runtest@v1
-      - name: Debug with tmate if failure + manual trigger + debug mode
-        if: ${{ failure() && github.event_name == 'workflow_dispatch' && inputs.debug }}
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 120
+    - uses: actions/github-script@v6
+    with:
+        github-token: ${{ secrets.PAT }} # Fine-grained GitHub PAT that was saved as repository secret
+        script: |
+        await github.rest.actions.createworkflowDispatch({
+            owner: 'ProjectTorreyPines',
+            repo: 'FUSE.jl',
+            workflow_id: 'run_tests.yml',
+            ref: 'master'
+        })            
+    - name: Debug with tmate if failure + manual trigger + debug mode
+      if: ${{ failure() && github.event_name == 'workflow_dispatch' && inputs.debug }}
+      uses: mxschmitt/action-tmate@v3
+      timeout-minutes: 120
