@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.PAT }} # Fine-grained GitHub PAT that was saved as repository secret
+          github-token: ${{ secrets.PAT_FUSE }} # Fine-grained GitHub PAT that was saved as repository secret
           script: |
               await github.rest.actions.createworkflowDispatch({
               owner: 'ProjectTorreyPines',

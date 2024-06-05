@@ -14,7 +14,7 @@ LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 MD5 = "6ac74813-4b46-53a4-afec-0b5dc9d7885c"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
 
 [compat]
 AbstractTrees = "0.4"
@@ -23,3 +23,9 @@ FileIO = "1"
 JLD2 = "0.4"
 MD5 = "0.2"
 RecipesBase = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
