@@ -6,7 +6,7 @@ on:
         types:
         - completed
 jobs:
-    trigger-repob-workflow:
+   triggerruntest:
         if: github.event.workflow_run.conclusion == 'success' # Run only when workflow run has succeeded, i.e. all jobs have succeeded
         runs-on: ubuntu-latest
         steps:
