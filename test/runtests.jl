@@ -20,12 +20,12 @@ function test_basic_functionalities()
     true
 end
 
-function test_data_building()
+function test_database_building()
     ADAS.build_ADAS_database(; parsed_data_path="test_parsed_data")
     true
 end
 
 @testset "Test basic functionalities of ADAS.jl" begin
     @test test_basic_functionalities()
-    @test_data_building()
+    @test_database_building()
 end
