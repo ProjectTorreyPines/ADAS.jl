@@ -27,5 +27,5 @@ end
 
 @testset "Test basic functionalities of ADAS.jl" begin
     @test test_basic_functionalities()
-    @test_database_building()
+    @test test_database_building()
 end
