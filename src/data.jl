@@ -4,13 +4,14 @@ Company: General Atomics
 ADAS.jl (c) 2024
 =#
 
+ADASPaths = Dict{Symbol,Dict{Symbol,String}}
 const parsed_data_directory = Dict(:adf11 => joinpath(@__DIR__, "../parsed_data/adf11"))
 
 const data_directory = Dict(:adf11 => joinpath(@__DIR__, "../data/adf11"))
 
 mutable struct ADASData
     adf11::ADF11
-    paths::Dict{Symbol,Dict{Symbol,String}}
+    paths::ADASPaths
 end
 
 const ADASdata = ADASData(Dict(), Dict(:parsed_data => parsed_data_directory, :raw_data => data_directory))
@@ -32,9 +33,8 @@ function retrieve_element_data(element::String, data, adas_type::Symbol)
     @debug "looking for $element in $(keys(data))"
 
     if element ∉ keys(data)
-        #println("typeof(get_element_data(element,ADASdata.paths,adas_type)) = $(typeof(get_element_data(element,ADASdata.paths,adas_type)))")
-        #println("keys(data)=$(keys(data)) \n data = $(typeof(data))\n element=$(element)\n $(get_element_data(element,ADASdata.paths,adas_type))")
-        data[element] = get_element_data(element, ADASdata.paths, adas_type)[element]
+        println("ADASdata.paths:", ADASdata.paths)
+        data[element] = get_element_data(element, ADASdata.paths, adas_type)
     end
 
     @assert element ∈ keys(data) "Cannot find element '$element' in database. Elements available are: $(collect(keys(data)))"
@@ -57,9 +57,9 @@ function retrieve_ADAS_data(element::String; year::String="latest", type::String
     return retrieve_element_data(ADASdata(element, adas_type); year=year, type=type, metastable=metastable, adas_type=adas_type)
 end
 
-function get_element_data(element::String, paths::Dict{String,Dict{Symbol,String}}, adas_type::Symbol)
+function get_element_data(element::String, paths::ADASPaths, adas_type::Symbol)
     filepath = get_data_filepath(element, paths[:parsed_data][adas_type])
-    #println("Getting element data from file: $filepath")
+    println("Getting element $element data from file: $filepath")
     if !isfile(filepath)
         make_database(element, paths, adas_type)
     end
@@ -143,13 +143,13 @@ function build_ADAS_database(; parsed_data_path::Union{Missing,String}=missing)
         for (k,v) in local_ADASdata.paths[:parsed_data]
             local_ADASdata.paths[:parsed_data][k] = joinpath(parsed_data_path,string(k))
         end
+
     end
 
     for adas_type in (f for f in propertynames(local_ADASdata) if f != :paths)
         make_database(local_ADASdata.paths, adas_type)
     end
 end
-
 
 # function build_ADAS_database(paths, adas_type)
 
