@@ -19,6 +19,12 @@ function test_basic_functionalities()
     af = ADAS.get_abundance_fraction(:Mo)
     true
 end
+
+function test_data_building()
+    ADAS.build_ADAS_database(; parsed_data_path="test_parsed_data")
+    true
+end
+
 @testset "Test basic functionalities of ADAS.jl" begin
     @test test_basic_functionalities()
 end
