@@ -34,7 +34,7 @@ function retrieve_element_data(element::String, data, adas_type::Symbol)
 
     if element ∉ keys(data)
         println("ADASdata.paths:", ADASdata.paths)
-        data[element] = get_element_data(element, ADASdata.paths, adas_type)
+        data[element] = get_element_data(element, ADASdata.paths, adas_type)[element]
     end
 
     @assert element ∈ keys(data) "Cannot find element '$element' in database. Elements available are: $(collect(keys(data)))"
@@ -57,7 +57,7 @@ function retrieve_ADAS_data(element::String; year::String="latest", type::String
     return retrieve_element_data(ADASdata(element, adas_type); year=year, type=type, metastable=metastable, adas_type=adas_type)
 end
 
-function get_element_data(element::String, paths::ADASPaths, adas_type::Symbol)
+function get_element_data(element::String, paths::ADASPaths, adas_type::Symbol)::Dict
     filepath = get_data_filepath(element, paths[:parsed_data][adas_type])
     println("Getting element $element data from file: $filepath")
     if !isfile(filepath)

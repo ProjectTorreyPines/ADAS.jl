@@ -16,3 +16,5 @@ data/.DS_Store
 examples/.jupyter/desktop-settings.json
 examples/.jupyter/desktop-workspaces/default-37a8.jupyterlab-workspace
 *test_parsed_data*
+ADASTestEnv/Project.toml
+ADASTestEnv/Manifest.toml
