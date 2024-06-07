@@ -13,6 +13,6 @@ jobs:
               await github.rest.actions.createWorkflowDispatch({
               owner: 'ProjectTorreyPines',
               repo: 'FUSE.jl',
-              workflow_id: '.github/workflows/runtests.yml',
+              workflow_id: runtests,
               ref: 'master'
               })
