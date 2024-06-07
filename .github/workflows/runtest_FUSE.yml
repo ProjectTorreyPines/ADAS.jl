@@ -2,7 +2,7 @@ name: runtestsFUSE
 on:
   workflow_dispatch:
   workflow_run:
-      workflows: [run_tests] # Name of GitHub workflow to trigger in target repository
+      workflows: [runtests] # Name of GitHub workflow to trigger in target repository
       types:
       - completed
 jobs:
@@ -17,6 +17,6 @@ jobs:
               await github.rest.actions.createWorkflowDispatch({
               owner: 'ProjectTorreyPines',
               repo: 'FUSE.jl',
-              workflow_id: 'run_tests.yml',
+              workflow_id: 'runtests.yml',
               ref: 'master'
               })
