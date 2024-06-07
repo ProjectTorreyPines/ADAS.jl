@@ -1,10 +1,6 @@
 name: runtestsFUSE
 on:
   workflow_dispatch:
-  workflow_run:
-      workflows: [runtests] # Name of GitHub workflow to trigger in target repository
-      types:
-      - completed
 jobs:
   triggerruntest:
     runs-on: ubuntu-latest
