@@ -6,7 +6,7 @@
 
 This package provides ADAS ionization, recombination, radiation, ... rates and some functions to retrieve cooling rates, Zeff and effective charge state.
 
-# Usage
+## Usage
 
 Basic usage:
 ```julia
@@ -43,5 +43,8 @@ af = ADAS.get_abundance_fraction(:Ne)
 plot(af, Te=1:1.0:10000.0)
 ```
 
+## Online documentation
+For more details, see the [online documentation](https://projecttorreypines.github.io/ADAS.jl/dev).
 
+![Docs](https://github.com/ProjectTorreyPines/ADAS.jl/actions/workflows/make_docs.yml/badge.svg)
 
