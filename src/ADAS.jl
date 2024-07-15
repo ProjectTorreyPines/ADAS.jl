@@ -22,4 +22,7 @@ include("plot_recipes.jl")
 export ADASdata
 export retrieve_ADAS_data, show_ADAS_data, build_ADAS_database, show_adf11_types
 
+const document = Dict()
+document[Symbol(@__MODULE__)] = [name for name in Base.names(@__MODULE__; all=false, imported=false) if name != Symbol(@__MODULE__)]
+
 end
