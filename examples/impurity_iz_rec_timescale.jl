@@ -27,16 +27,33 @@ Te, ne = meshgrid(Te__, ne__)
 # contourf!(ne__, Te__, log10.(τ_iz[:Kr]), color=:turbo, clabels=true, cbar=true, subplot=2, xscale=:log10, yscale=:log10, clims=(-6, 0))
 # contourf!(ne__, Te__, (τ_iz[:Kr] ./ τ_rec[:Kr]), color=:turbo, clabels=true, cbar=true, subplot=3, xscale=:log10, yscale=:log10, clims=(0.9, 1.1))
 # plot!()
-plot(layout=length(impurities), size=(1200, 800))
+plot(; layout=length(impurities), size=(1200, 800))
 colorbar_ticks = (collect(-6:1:1.0), format.("{:2.2e}", 10 .^ collect(-6:1:1.0)))
 for (i, imp) in enumerate(impurities)
-    contourf!(ne__, Te__, log10.(τ_max[imp]), annot=1e-1, levels=collect(-6:1), color=:turbo, xlabel=L"$n_e [m^{-3}]$", ylabel=L"$T_e [eV]$", clabels=false, cbar=true, subplot=i, xscale=:log10, colorbar_ticks=colorbar_ticks, yscale=:log10, title=L"$\max(\tau_{iz},\tau_{rec})[s]$" * ": $imp", clim=(-6, 1.0))
-    plot!(framestyle=:box, grid=true, gridlinewidth=3, subplot=i)
-   
-    vline!(10 .^ LinRange(19, 22, 4), color="gray", label="", style=:dash, subplot=i)
-    hline!(10 .^ LinRange(0, 5, 6), color="gray", label="", style=:dash, subplot=i)
+    contourf!(
+        ne__,
+        Te__,
+        log10.(τ_max[imp]);
+        annot=1e-1,
+        levels=collect(-6:1),
+        color=:turbo,
+        xlabel=L"$n_e [m^{-3}]$",
+        ylabel=L"$T_e [eV]$",
+        clabels=false,
+        cbar=true,
+        subplot=i,
+        xscale=:log10,
+        colorbar_ticks=colorbar_ticks,
+        yscale=:log10,
+        title=L"$\max(\tau_{iz},\tau_{rec})[s]$" * ": $imp",
+        clim=(-6, 1.0)
+    )
+    plot!(; framestyle=:box, grid=true, gridlinewidth=3, subplot=i)
+
+    vline!(10 .^ LinRange(19, 22, 4); color="gray", label="", style=:dash, subplot=i)
+    hline!(10 .^ LinRange(0, 5, 6); color="gray", label="", style=:dash, subplot=i)
     fontsize = 12
-    annotate!(1e19,50000,text("$imp", fontsize, :Courier, :left),subplot=i)
+    annotate!(1e19, 50000, text("$imp", fontsize, :Courier, :left); subplot=i)
 end
 plot!()
 

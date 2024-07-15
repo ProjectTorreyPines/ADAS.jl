@@ -47,7 +47,7 @@ function show_adf11_types()
     for (k, v) in adf11_types
         println("'$k' : $(v[2])")
     end
-    print("--------------------------------------")
+    return print("--------------------------------------")
 end
 
 function get_type_adf11(type)
@@ -75,7 +75,7 @@ function ADASHeader(block::ADASBlock)
     data = parse.(Int64, split(header)[1:5])
     details = join(split(header)[6:end], " ")
     @debug "ADASHeader : data=$data; details=$details"
-    ADASHeader(data..., details)
+    return ADASHeader(data..., details)
 end
 
 struct ADASAxis
@@ -102,7 +102,7 @@ function ADASAxis(block::ADASBlock, header::ADASHeader; unit_ne="m^-3") #TODO: u
     if unit_ne == "m^-3"
         log_ne .= log_ne .+ 6.0
     end
-    ADASAxis(log_Te, log_ne, 10 .^ log_Te, 10 .^ log_ne, "eV", unit_ne)
+    return ADASAxis(log_Te, log_ne, 10 .^ log_Te, 10 .^ log_ne, "eV", unit_ne)
 end
 
 struct ADASRates{T}
@@ -128,7 +128,7 @@ function ADASRates(block::ADASBlock, header::ADASHeader; unit_rates="m^3")
     if unit_rates == "m^3"
         log10_values .= log10_values .- 6.0
     end
-    ADASRates(igrd, iptr, Z, log10_values, 10.0 .^ log10_values)
+    return ADASRates(igrd, iptr, Z, log10_values, 10.0 .^ log10_values)
 end
 
 struct adf11Data{T}
@@ -167,7 +167,7 @@ function adf11Data(filepath::String; metastable=false)
             end
         end
     end
-    adf11Data(filepath, header, axis, rates, units)
+    return adf11Data(filepath, header, axis, rates, units)
 end
 
 struct adf11File{T} <: ADASFile{T}
@@ -192,12 +192,12 @@ function adf11File(filename::String, filepath::String)
         metastable = false
     end
     data = adf11Data(filepath; metastable=metastable)
-    adf11File{get_type_adf11(type)}(name, element, filepath, year, metastable, type, data, checksum(filepath))
+    return adf11File{get_type_adf11(type)}(name, element, filepath, year, metastable, type, data, checksum(filepath))
 end
 
 function checksum(filepath)
     open(filepath) do f
-        Array(md5(f))
+        return Array(md5(f))
     end
 end
 

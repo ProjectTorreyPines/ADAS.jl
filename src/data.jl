@@ -22,7 +22,7 @@ const ADASdata = ADASData(Dict(), Dict(:parsed_data => parsed_data_directory, :r
 
 function (ADASdata::ADASData)(element, adas_type::Symbol)
     @assert adas_type == :adf11 "getting data of type $adas_type is not implemented yet..."
-    retrieve_element_data(element, getfield(ADASdata, adas_type), adas_type)
+    return retrieve_element_data(element, getfield(ADASdata, adas_type), adas_type)
 end
 
 retrieve_element_data(element::Symbol, data, adas_type::Symbol) = retrieve_element_data(string(element), data, adas_type)
@@ -50,7 +50,7 @@ function retrieve_element_data(args...; adas_type::Symbol=:adf11, kwargs...)
 end
 
 function retrieve_ADAS_data(element::Symbol; kw...)
-    retrieve_ADAS_data(string(element); kw...)
+    return retrieve_ADAS_data(string(element); kw...)
 end
 
 function retrieve_ADAS_data(element::String; year::String="latest", type::String="scd", metastable::Bool=false, adas_type=:adf11)
@@ -85,7 +85,7 @@ show_ADAS_data(; adas_type=:adf11, kw...) = AbstractTrees.print_tree(get_databas
 
 function dump_data(element, directory, data)
     file_path = get_data_filepath(element, directory)
-    FileIO.save(file_path, data)
+    return FileIO.save(file_path, data)
 end
 
 function dump_data(directory, data)
@@ -127,21 +127,21 @@ end
 function make_database(paths, adas_type)
     println("building database for $adas_type files in $paths")
     data = get_database(paths[:raw_data][adas_type], adas_type)
-    dump_data(paths[:parsed_data][adas_type], data)
+    return dump_data(paths[:parsed_data][adas_type], data)
 end
 
 function make_database(element, paths, adas_type)
     element = lowercase(element)
     data = get_database(paths[:raw_data][adas_type], adas_type)
     @assert element ∈ keys(data)
-    dump_data(element, paths[:parsed_data][adas_type], data)
+    return dump_data(element, paths[:parsed_data][adas_type], data)
 end
 
 function build_ADAS_database(; parsed_data_path::Union{Missing,String}=missing)
-     local_ADASdata  = deepcopy(ADASdata)
-     if !ismissing(parsed_data_path)
-        for (k,v) in local_ADASdata.paths[:parsed_data]
-            local_ADASdata.paths[:parsed_data][k] = joinpath(parsed_data_path,string(k))
+    local_ADASdata = deepcopy(ADASdata)
+    if !ismissing(parsed_data_path)
+        for (k, v) in local_ADASdata.paths[:parsed_data]
+            local_ADASdata.paths[:parsed_data][k] = joinpath(parsed_data_path, string(k))
         end
 
     end
@@ -162,11 +162,11 @@ get_database(directory::String, adas_type) = get_database(directory::String, ADA
 get_database(directory::String, ::ADASType{:adf11}) = get_database(get_list_file(directory, adf11File))
 
 function Base.show(io::IO, ::MIME"text/plain", data::ADASData)
-    print(io, "ADAS data: adf11: $(collect(keys(data.adf11)))")
+    return print(io, "ADAS data: adf11: $(collect(keys(data.adf11)))")
 end
 
 function Base.show(io::IO, data::ADASData)
-    print(io, "ADAS data: adf11: $(join(collect(keys(data.adf11)),"; "))")
+    return print(io, "ADAS data: adf11: $(join(collect(keys(data.adf11)),"; "))")
 end
 
 Base.show(io::IO, ::MIME"text/plain", file::adf11File) = AbstractTrees.print_tree(file; maxdepth=1, indicate_truncation=false)
@@ -175,5 +175,5 @@ AbstractTrees.children(file::adf11File) = Dict(f => getproperty(file, f) for f i
 
 
 function Base.show(io::IO, data::adf11File)
-    print(io, "ADAS data | adf11 : $(data.name) ")
+    return print(io, "ADAS data | adf11 : $(data.name) ")
 end
