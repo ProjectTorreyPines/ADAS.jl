@@ -18,14 +18,11 @@ MD5 = "6ac74813-4b46-53a4-afec-0b5dc9d7885c"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 
 [compat]
-AbstractTrees = ">= 0.4"
-Colors = ">= 0.12"
+AbstractTrees = "0.4"
+Colors = "0.12"
 FileIO = "1"
-MD5 = ">= 0.2"
+Interpolations = "0.15"
+JLD2 = "0.4"
+LaTeXStrings = "1"
+MD5 = "0.2"
 RecipesBase = "1"
-
-[extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test"]
