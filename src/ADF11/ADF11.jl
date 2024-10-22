@@ -37,7 +37,7 @@ end
 #     return load_database(database_file)
 # end
 
-function retrieve_adf11_element_data(data; year::String="latest", type::String="scd", metastable::Bool=false)
+function retrieve_adf11_element_data(data; year::Union{String,Missing}="latest", type::String="scd", metastable::Bool=false)
     type = lowercase(type)
     types = collect(keys(adf11_types))
     if !(type in types)
@@ -48,7 +48,7 @@ function retrieve_adf11_element_data(data; year::String="latest", type::String="
     end
 
     data = data[type]
-    if year == "latest"
+    if (year isa Missing) || (year == "latest")
         year = sort!(collect(keys(data)))[end]
     end
 
