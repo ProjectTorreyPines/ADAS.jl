@@ -53,7 +53,7 @@ function retrieve_ADAS_data(element::Symbol; kw...)
     return retrieve_ADAS_data(string(element); kw...)
 end
 
-function retrieve_ADAS_data(element::String; year::String="latest", type::String="scd", metastable::Bool=false, adas_type=:adf11)
+function retrieve_ADAS_data(element::String; year::Union{String,Missing}="latest", type::String="scd", metastable::Bool=false, adas_type=:adf11)
     return retrieve_element_data(ADASdata(element, adas_type); year=year, type=type, metastable=metastable, adas_type=adas_type)
 end
 

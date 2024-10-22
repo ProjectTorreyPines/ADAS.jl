@@ -19,11 +19,12 @@ end
 
 
 import Interpolations
-function get_cooling_rates(imp::Union{String,Symbol})
-    plt = retrieve_ADAS_data(imp; type="plt")
-    prb = retrieve_ADAS_data(imp; type="prb")
-    scd = retrieve_ADAS_data(imp; type="scd")
-    acd = retrieve_ADAS_data(imp; type="acd")
+function get_cooling_rates(imp::Union{String,Symbol}; plt_year=missing)
+    plt = retrieve_ADAS_data(imp;type="plt", year = plt_year)
+    prb = retrieve_ADAS_data(imp;type="prb")
+    scd = retrieve_ADAS_data(imp;type="scd")
+    acd = retrieve_ADAS_data(imp;type="acd")
+
 
     ndens = length(acd.data.axis.ne)
     ntemp = length(acd.data.axis.Te)
