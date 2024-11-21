@@ -85,13 +85,15 @@ show_ADAS_data(; adas_type=:adf11, kw...) = AbstractTrees.print_tree(get_databas
 
 function dump_data(element, directory, data)
     file_path = get_data_filepath(element, directory)
-    return FileIO.save(file_path, data)
+    FileIO.save(file_path, data)
+    return nothing
 end
 
 function dump_data(directory, data)
     for (el, d) in data
         dump_data(el, directory, d)
     end
+    return nothing
 end
 
 get_data_filepath(element, directory) = joinpath(directory, "$element.jld2")
