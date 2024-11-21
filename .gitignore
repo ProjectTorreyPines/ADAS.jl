@@ -38,3 +38,4 @@ Manifest.toml
 # temp/test files
 test.json
 asd.jl
+test_parsed_data/
