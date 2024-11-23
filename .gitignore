@@ -39,3 +39,6 @@ Manifest.toml
 test.json
 asd.jl
 test_parsed_data/
+examples/.jupyter/desktop-workspaces/default-37a8.jupyterlab-workspace
+ADASTestEnv/Project.toml
+examples/.jupyter/desktop-settings.json
