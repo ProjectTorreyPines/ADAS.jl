@@ -2,10 +2,55 @@
 Author: Luca Cappelli (cappellil@fusion.gat.com)
 ADAS.jl (c) 2024
 =#
-
-using DataFrames
+using Downloads
 using Interpolations
-using DelimitedFiles
+using Printf
+
+function get_adf15_datafile(Element::Symbol, Z::Float64; bundling_model::String = "ls")
+
+    element_string = lowercase(string(Element))
+
+    path_data = "data/adf15"
+
+    pattern = ".*" * bundling_model * "#" * "[A-Za-z][a-z]?\\d+\\.dat"
+    rg = Regex(pattern)
+
+    # List all files in the directory
+    files = readdir(path_data)
+
+    # Filter files that match the regex
+    matching_files = filter(f -> occursin(rg, f), files)
+
+    # Print matching files
+    if !isempty(matching_files)
+        println("Matching files:")
+        println(matching_files)
+
+        fullname = path_data * "/" * matching_files[1]
+
+    else
+        println("No matching files found.")
+
+        url = "https://open.adas.ac.uk/download/adf15/pec40]" *
+        "[" * element_string * "/pec40]" *
+        "[" * element_string * "_" * bundling_model * "]" *
+        "[" * element_string * string(Int64(Z)) * ".dat"
+
+
+        filename = "pec40#" * element_string * "_" * bundling_model * "#" * element_string * string(Int64(Z)) * ".dat"
+
+        fullname = path_data * "/" * filename
+
+        Downloads.download(url, fullname)
+
+        println("Downloading: " * fullname)
+
+    end
+
+    return fullname
+end
+
+
 
 function read_adf15(path::String; order::Int64=1)
 
@@ -118,11 +163,13 @@ function read_adf15(path::String; order::Int64=1)
         )
     end
 
-    return log10pe
-
+    return log10pec_dict
 end
 
 function get_interpolated_value(log10pec_dict, lambda_input, dens_input, temp_input)
+    # Step 0: convert input to ADAS units
+    dens_input = dens_input ./ 1e6 # conversion: m⁻³ -> cm⁻³ 
+    
     # Step 1: Find the closest lambda in the dictionary keys
     lambda_keys = collect(parse.(Float64, keys(log10pec_dict)))
 
@@ -143,7 +190,7 @@ function get_interpolated_value(log10pec_dict, lambda_input, dens_input, temp_in
     temp_input = clamp(temp_input, minimum(temp_points), maximum(temp_points))
 
     # Perform the interpolation
-    interpolated_value = 10 .^ interpolator.(log10.(dens_input), log10.(temp_input))
+    interpolated_value = 10 .^ interpolator.(log10.(dens_input), log10.(temp_input)) .* 1e-6 # [m³ s⁻¹]
 
     return interpolated_value
 end

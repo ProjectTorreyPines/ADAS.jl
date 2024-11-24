@@ -5,11 +5,13 @@ ADAS.jl (c) 2024
 
 include("parser.jl")
 
-path = "/home/cappellil/adf15_python/pec40#w_cl#w1.dat"
-order = Int(1)
+Element = :W
+Z = 0.0
 
-lambda_input = 142.0 # Angstrom
-dens_input = 1e15 # cm⁻³
+lambda_input = 4008.8 # Angstrom
+dens_input = 1e20 # m⁻³
 temp_input = 20.0 # eV
 
+datafile = get_adf15_datafile(Element, Z)
+log10pec_dict = read_adf15(datafile)
 PEC = get_interpolated_value(log10pec_dict, lambda_input, dens_input, temp_input)
