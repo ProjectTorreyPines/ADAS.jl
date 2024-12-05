@@ -9,9 +9,12 @@ Element = :W
 Z = 0.0
 
 lambda_input = 4008.8 # Angstrom
-dens_input = 1e20 # m⁻³
-temp_input = 20.0 # eV
+dens_input = vec([1e17 1e18 1e19 1e20]) # m⁻³
+temp_input = vec([25.0 25.0 25.0 25.0]) # eV
 
-datafile = get_adf15_datafile(Element, Z)
-log10pec_dict = read_adf15(datafile)
-PEC = get_interpolated_value(log10pec_dict, lambda_input, dens_input, temp_input)
+datafile = get_adf15_datafile(Element, Z; bundling_model="ic")
+log10pec_dict, meta = read_adf15(datafile)
+
+PEC, lambda = get_interpolated_value(log10pec_dict, lambda_input, dens_input, temp_input)
+
+pec_struct = get_photon_emissivity_coeff(datafile)

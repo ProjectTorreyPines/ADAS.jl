@@ -6,7 +6,7 @@ using Downloads
 using Interpolations
 using Printf
 
-function get_adf15_datafile(Element::Symbol, Z::Float64; bundling_model::String = "ls")
+function get_adf15_datafile(Element::Symbol, Z::Float64; bundling_model::String = "ic")
 
     element_string = lowercase(string(Element))
 
@@ -55,6 +55,7 @@ end
 function read_adf15(path::String; order::Int64=1)
 
     log10pec_dict = Dict{String, Dict{String, Any}}()
+    meta = Dict{String, Any}()
 
     # Open the file and read lines
     lines = readlines(path)
@@ -161,10 +162,50 @@ function read_adf15(path::String; order::Int64=1)
             "type" => lowercase(header_dict["type"]),
             "INDM" => parse(Int, get(header_dict, "INDM", "1"))
         )
+
+        meta["spec"] =  spec
+        meta["Z"] = Z
+        meta["num_den"] = num_den
+        meta["num_temp"] = num_temp   
+
     end
 
-    return log10pec_dict
+    return log10pec_dict, meta
 end
+
+
+struct PhotonEmissivityCoefficients{U}
+    pec::U
+    Te::Vector{Float64}
+    ne::Vector{Float64}
+    wavelengths::Vector{Float64}
+    Z::Float64
+    imp::Symbol
+end
+
+function get_photon_emissivity_coeff(datafile::String; kw...)
+    
+    log10pec_dict, meta = read_adf15(datafile)
+    wavelengths = parse.(Float64, keys(log10pec_dict))
+    Nw = length(wavelengths)
+
+    Z = meta["Z"]
+    imp = Symbol(meta["spec"])
+
+    ne = log10pec_dict[string(wavelengths[1])]["dens pnts"]
+    Te = log10pec_dict[string(wavelengths[1])]["temp pnts"]
+
+    itp_type = typeof(log10pec_dict[string(wavelengths[1])]["log10 PEC fun"])
+
+    pec = Vector{itp_type}(undef, Nw)
+
+    for i = 1:Nw
+        pec[i] = log10pec_dict[string(wavelengths[i])]["log10 PEC fun"]
+    end
+
+    return PhotonEmissivityCoefficients{Vector{itp_type}}(pec, Te, ne, wavelengths, Z, imp)
+end
+
 
 function get_interpolated_value(log10pec_dict, lambda_input, dens_input, temp_input)
     # Step 0: convert input to ADAS units
@@ -186,13 +227,15 @@ function get_interpolated_value(log10pec_dict, lambda_input, dens_input, temp_in
 
     # Step 3: Interpolate
     # Ensure that dens_input and temp_input are within the range of grid points
-    dens_input = clamp(dens_input, minimum(dens_points), maximum(dens_points))
-    temp_input = clamp(temp_input, minimum(temp_points), maximum(temp_points))
+    dens_input = clamp.(dens_input, minimum(dens_points), maximum(dens_points))
+    temp_input = clamp.(temp_input, minimum(temp_points), maximum(temp_points))
 
     # Perform the interpolation
     interpolated_value = 10 .^ interpolator.(log10.(dens_input), log10.(temp_input)) .* 1e-6 # [m³ s⁻¹]
 
-    return interpolated_value
+    println("selected wavelength: " * "$lambda_key [A]")
+
+    return interpolated_value, lambda_key
 end
 
 
