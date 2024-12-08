@@ -1,59 +1,18 @@
 #=
 Author: Jerome Guterl (guterlj@fusion.gat.com)
 Company: General Atomics
+Contributor : Luca Cappelli (cappellil@fusion.gat.com)
 ADAS.jl (c) 2024
 =#
 
 
-abstract type Ionization <: ADASRate end
-abstract type Recombination <: ADASRate end
-abstract type ContinuumRadiation <: ADASRate end
-abstract type LineRadiation <: ADASRate end
-abstract type ChargeExchange <: ADASRate end
-abstract type ChargeExchangeRadiation <: ADASRate end
-abstract type SXRLineRadiation <: ADASRate end
-abstract type SXRContinuumRadiation <: ADASRate end
-abstract type RecombinationBremsstrahlung <: ADASRate end
-abstract type SXRSensitivity <: ADASRate end
-abstract type SXRBremsstrahlung <: ADASRate end
-abstract type Bremsstrahlung <: ADASRate end
-abstract type MeanIonisationPotential <: ADASRate end
-abstract type CrossCouplingCoeffs <: ADASRate end
-abstract type ParentCrossCouplingCoeffs <: ADASRate end
-abstract type MeanChargeStateSquared <: ADASRate end
-abstract type MeanChargeState <: ADASRate end
+abstract type PhotonEmissivityCoeff <: ADASRate end
 
-const adf11_types = Dict(
-    "acd" => (Recombination, "effective recombination coefficients"),
-    "scd" => (Ionization, "effective ionization coefficients"),
-    "prb" => (RecombinationBremsstrahlung, "Continuum and line power driven by recombination and Bremsstrahlung of dominant ions"),
-    "plt" => (LineRadiation, "Line power driven by excitation of dominant ions"),
-    "ccd" => (ChargeExchange, "Charge exchange effective recombination coefficients (with D)"),
-    "prc" => (ChargeExchangeRadiation, "Line power due to charge transfer from thermal neutral hydrogen to dominant ions (Charge exchange emission)"),
-    "pls" => (SXRLineRadiation, "Line power from selected transitions of dominant ions"),
-    "prs" => (SXRContinuumRadiation, "continuum radiation in the SXR range"),
-    "brs" => (Bremsstrahlung, "continuum spectral bremstrahlung"),
-    "fis" => (SXRSensitivity, "sensitivity in the SXR range"),
-    "pbs" => (SXRBremsstrahlung, "impurity bremsstrahlung in SXR range, also included in prs files"),
-    "ecd" => (MeanIonisationPotential, "Mean Ionisation Potential"),
-    "qcd" => (CrossCouplingCoeffs, "Cross-coupling coefficients"),
-    "xcd" => (ParentCrossCouplingCoeffs, "Parent Cross-coupling coefficients"),
-    "ycd" => (MeanChargeStateSquared, "Mean Charge State Squared"),
-    "zcd" => (MeanChargeState, "Mean Charge State")
-)
-
-function show_adf11_types()
-    println("----------- adf11 types ------------")
-    for (k, v) in adf11_types
-        println("'$k' : $(v[2])")
-    end
-    return print("--------------------------------------")
-end
-
-function get_type_adf11(type)
-    @assert type ∈ keys(adf11_types) "$type not in $(keys(adf11_types))"
-    return adf11_types[type][1]
-end
+const adf15_types = Dict(
+    "exc" => (Excitation, "Emission related to excitation and relaxation"),
+    "rec" => (Recombination, "Free electron binds to ion, emitting photon"),
+    "cx" => (ChargeExchange, "Emission caused by a neutral atom swapping an electron with an ion") 
+    )
 
 struct ADASBlock
     header::String
@@ -131,7 +90,7 @@ function ADASRates(block::ADASBlock, header::ADASHeader; unit_rates="m^3")
     return ADASRates(igrd, iptr, Z, log10_values, 10.0 .^ log10_values)
 end
 
-struct adf11Data{T}
+struct adf15Data{T}
     filepath::String
     header::ADASHeader
     axis::ADASAxis
@@ -139,8 +98,8 @@ struct adf11Data{T}
     units::String
 end
 
-function adf11Data(filepath::String; metastable=false)
-    lines = read_adas_file(filepath)
+function adf15Data(filepath::String; metastable=false)
+    lines = read_adas_file(filepath)   # in data.jl
     comments = get_comments(lines)
     units = get_units(comments)
     blocks = split_blocks(lines)
@@ -167,10 +126,10 @@ function adf11Data(filepath::String; metastable=false)
             end
         end
     end
-    return adf11Data(filepath, header, axis, rates, units)
+    return adf15Data(filepath, header, axis, rates, units)
 end
 
-struct adf11File{T} <: ADASFile{T}
+struct adf15File{T} <: ADASFile{T}
     name::String
     element::String
     path::String
@@ -181,7 +140,7 @@ struct adf11File{T} <: ADASFile{T}
     md5::Vector{UInt8}
 end
 
-function adf11File(filename::String, filepath::String)
+function adf15File(filename::String, filepath::String)
     name = filename
     element = match(Regex("(?<=\\_)(.*?)(?=\\.|\\#)"), filename).captures[1]
     type = match(Regex("(.*?)(?=[0-9]{2})"), filename).captures[1]
@@ -201,4 +160,4 @@ function checksum(filepath)
     end
 end
 
-const ADF11 = Dict{String,Dict{String,Dict{String,Dict{String,adf11File}}}}
+const ADF15 = Dict{String,Dict{String,Dict{String,Dict{String,adf15File}}}}

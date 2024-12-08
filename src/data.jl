@@ -4,10 +4,18 @@ Company: General Atomics
 ADAS.jl (c) 2024
 =#
 
-ADASPaths = Dict{Symbol,Dict{Symbol,String}}
+
+# @__DIR__:
+# This macro represents the directory of the file in which this code resides.
+# For example, if this file is located at /home/user/MyModule/src/myfile.jl, @__DIR__ evaluates to /home/user/MyModule/src.ADASPaths = Dict{Symbol,Dict{Symbol,String}}
+
 const parsed_data_directory = Dict(:adf11 => joinpath(@__DIR__, "../parsed_data/adf11"))
 
-const data_directory = Dict(:adf11 => joinpath(@__DIR__, "../data/adf11"))
+const data_directory = Dict(:adf11 => joinpath(@__DIR__, "../data/adf11"),
+                            :adf15 => joinpath(@__DIR__, "../data/adf15"))
+
+
+const ADASPaths = Dict{Symbol, Dict{Symbol, String}}
 
 mutable struct ADASData
     adf11::ADF11

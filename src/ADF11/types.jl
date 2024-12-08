@@ -67,7 +67,6 @@ struct ADASHeader
     imin::Int64
     imax::Int64
     details::String
-
 end
 
 function ADASHeader(block::ADASBlock)
@@ -196,8 +195,13 @@ function adf11File(filename::String, filepath::String)
 end
 
 function checksum(filepath)
-    open(filepath) do f
-        return Array(md5(f))
+    open(filepath) do f # The open function opens the file located at filepath and assigns the file handle to the variable f within the scope of the do block.
+                        # When the block finishes executing, open automatically closes the file, even if an error occurs, ensuring safe and efficient file handling.
+        return Array(md5(f)) # Converts the hash into an array of bytes for easy manipulation or comparison.
+                             # MD5 (Message Digest 5) is one specific hash function. It produces a fixed-size output (e.g., 128 bits for MD5), regardless of the size of the input.
+                             # Is deterministic, meaning the same input will always produce the same hash.
+                             # For MD5 the hash is represented with 32 hexadecimal characters (e.g., 5d41402abc4b2a76b9719d911017c592)
+                             # each hash is a unique blue print uniquely identifying data
     end
 end
 

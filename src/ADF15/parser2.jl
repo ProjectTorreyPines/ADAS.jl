@@ -2,15 +2,18 @@
 Author: Luca Cappelli (cappellil@fusion.gat.com)
 ADAS.jl (c) 2024
 =#
-using Downloads
-using Interpolations
-using Printf
+
+# version 1.0 :
+# - coding with a few structures and datatypes, more julia-like coding should be implemented
+# - only excitation is considered
+# - no attributes are retrieved, nor transition 
+# - data pahts defined in 'data.jl' inside variable 'data_directory'
 
 function get_adf15_datafile(Element::Symbol, Z::Float64; bundling_model::String = "ic")
 
     element_string = lowercase(string(Element))
 
-    path_data = "data/adf15"
+    path_data = data_directory[:adf15]
 
     pattern = ".*" * bundling_model * "#" * "[A-Za-z][a-z]?\\d+\\.dat"
     rg = Regex(pattern)
@@ -51,7 +54,6 @@ function get_adf15_datafile(Element::Symbol, Z::Float64; bundling_model::String 
 end
 
 
-
 function read_adf15(path::String; order::Int64=1)
 
     log10pec_dict = Dict{String, Dict{String, Any}}()
@@ -60,6 +62,13 @@ function read_adf15(path::String; order::Int64=1)
     # Open the file and read lines
     lines = readlines(path)
     header = split(lines[1])
+
+    # Extract Z from header if possible
+    Z = try
+        parse(Int, join(header[4:end-3]))
+    catch
+        0
+    end
 
     # Get the expected number of lines by reading the header
     num_lines = parse(Int, header[1])
@@ -72,13 +81,6 @@ function read_adf15(path::String; order::Int64=1)
         # Skip until "isel" appears in the line
         while !occursin("isel", lowercase(lines[line_idx]))
             line_idx += 1
-        end
-
-        # Extract Z if possible
-        Z = try
-            parse(Int, join(header[4:end-3]))
-        catch
-            0
         end
 
         while !occursin("isel", lowercase(lines[line_idx]))
@@ -103,6 +105,7 @@ function read_adf15(path::String; order::Int64=1)
         num_temp = parse(Int, header0[end])
 
         # Parse other parameters from header to header_dict
+        # for instance emission type: excitation, Recombination, Charge Exchange
         for item in header[2:end]
             parts = split(item, '=')
             if length(parts) == 2
@@ -158,7 +161,6 @@ function read_adf15(path::String; order::Int64=1)
             "dens pnts" => dens,
             "temp pnts" => temp,
             "PEC pnts" => PEC,
-            #"lambda [A]" => header_dict["lam"],
             "type" => lowercase(header_dict["type"]),
             "INDM" => parse(Int, get(header_dict, "INDM", "1"))
         )
@@ -207,7 +209,7 @@ function get_photon_emissivity_coeff(datafile::String; kw...)
 end
 
 
-function get_interpolated_value(log10pec_dict, lambda_input, dens_input, temp_input)
+function get_pec_interpolated_value(log10pec_dict, lambda_input, dens_input, temp_input)
     # Step 0: convert input to ADAS units
     dens_input = dens_input ./ 1e6 # conversion: m⁻³ -> cm⁻³ 
     
