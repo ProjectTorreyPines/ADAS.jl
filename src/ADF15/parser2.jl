@@ -53,10 +53,11 @@ function get_adf15_datafile(Element::Symbol, Z::Float64; bundling_model::String 
     return fullname
 end
 
+path = "/home/cappellil/ADAS/ADAS.jl/data/adf15/pec40#w_ic#w0.dat"
 
 function read_adf15(path::String; order::Int64=1)
 
-    log10pec_dict = Dict{String, Dict{String, Any}}()
+    pec_dict = Dict{String, Dict{String, Any}}()
     meta = Dict{String, Any}()
 
     # Open the file and read lines
@@ -116,7 +117,7 @@ function read_adf15(path::String; order::Int64=1)
 
         line_idx += 1
 
-        # Densities
+        # Densities (cm^-3)
         dens = Float64[]
         while length(dens) < num_den
             dens = vcat(dens, parse.(Float64, split(lines[line_idx])))
@@ -124,7 +125,7 @@ function read_adf15(path::String; order::Int64=1)
         end
         dens = collect(dens)
 
-        # Temperatures
+        # Temperatures (eV)
         temp = Float64[]
         while length(temp) < num_temp
             temp = vcat(temp, parse.(Float64, split(lines[line_idx])))
@@ -132,15 +133,16 @@ function read_adf15(path::String; order::Int64=1)
         end
         temp = collect(temp)
 
-        # PEC values
+        # PEC values (cm^3 s^-1)
         PEC = Float64[]
         while length(PEC) < num_den * num_temp
             PEC = vcat(PEC, parse.(Float64, split(lines[line_idx])))
             line_idx += 1
         end
-        PEC = reshape(PEC, num_den, num_temp) # reshape vector to matrix
 
-        # Create PEC interpolator using log10 values
+        PEC = reshape(PEC, num_temp, num_den)' # reshape vector to matrix
+
+        # Create PEC interpolator
         # Define the spline type based on the value of `order` 
         # order = 1 -> Linear
         # order = 2 -> Quadratic
@@ -148,16 +150,18 @@ function read_adf15(path::String; order::Int64=1)
 
         interp_type = order == 1 ? Linear() : Quadratic()
 
-        # Interpolate log10 PEC with user-specified spline order
+        # Interpolate  PEC with user-specified spline order (to be developed)
         pec_fun = interpolate(
-            (log10.(dens), log10.(temp)),
-            log10.(PEC),
+            (dens, temp),
+            PEC,
             Gridded(interp_type),
         )
+        
+        pec_fun = interpolate((dens, temp), PEC, Gridded(interp_type))
 
         # Populate dictionary
-        log10pec_dict[string(header_dict["lam"])] = Dict(
-            "log10 PEC fun" => pec_fun,
+        pec_dict[string(header_dict["lam"])] = Dict(
+            "PEC fun" => pec_fun,
             "dens pnts" => dens,
             "temp pnts" => temp,
             "PEC pnts" => PEC,
@@ -172,7 +176,7 @@ function read_adf15(path::String; order::Int64=1)
 
     end
 
-    return log10pec_dict, meta
+    return pec_dict, meta
 end
 
 
@@ -187,57 +191,63 @@ end
 
 function get_photon_emissivity_coeff(datafile::String; kw...)
     
-    log10pec_dict, meta = read_adf15(datafile)
-    wavelengths = parse.(Float64, keys(log10pec_dict))
+    pec_dict, meta = read_adf15(datafile)
+    wavelengths = parse.(Float64, keys(pec_dict))
     Nw = length(wavelengths)
 
     Z = meta["Z"]
     imp = Symbol(meta["spec"])
 
-    ne = log10pec_dict[string(wavelengths[1])]["dens pnts"]
-    Te = log10pec_dict[string(wavelengths[1])]["temp pnts"]
+    ne = pec_dict[string(wavelengths[1])]["dens pnts"]
+    Te = pec_dict[string(wavelengths[1])]["temp pnts"]
 
-    itp_type = typeof(log10pec_dict[string(wavelengths[1])]["log10 PEC fun"])
+    itp_type = typeof(pec_dict[string(wavelengths[1])]["PEC fun"])
 
     pec = Vector{itp_type}(undef, Nw)
 
     for i = 1:Nw
-        pec[i] = log10pec_dict[string(wavelengths[i])]["log10 PEC fun"]
+        pec[i] = pec_dict[string(wavelengths[i])]["PEC fun"]
     end
 
     return PhotonEmissivityCoefficients{Vector{itp_type}}(pec, Te, ne, wavelengths, Z, imp)
 end
 
 
-function get_pec_interpolated_value(log10pec_dict, lambda_input, dens_input, temp_input)
+function get_pec_interpolated_value(pec_dict, lambda_input, dens_input, temp_input)
     # Step 0: convert input to ADAS units
     dens_input = dens_input ./ 1e6 # conversion: m⁻³ -> cm⁻³ 
     
     # Step 1: Find the closest lambda in the dictionary keys
-    lambda_keys = collect(parse.(Float64, keys(log10pec_dict)))
+    lambda_keys = collect(parse.(Float64, keys(pec_dict)))
 
     closest_lambda = findmin(abs.(lambda_keys .- lambda_input))[2]
     lambda_key = string(lambda_keys[closest_lambda])
 
     # Step 2: Retrieve the dictionary entry for the closest lambda
-    lambda_data = log10pec_dict[lambda_key]
+    lambda_data = pec_dict[lambda_key]
 
     # Extract the interpolator and grid points from the entry
-    interpolator = lambda_data["log10 PEC fun"]
+    interpolator = lambda_data["PEC fun"]
     dens_points = lambda_data["dens pnts"]
     temp_points = lambda_data["temp pnts"]
 
     # Step 3: Interpolate
     # Ensure that dens_input and temp_input are within the range of grid points
-    dens_input = clamp.(dens_input, minimum(dens_points), maximum(dens_points))
-    temp_input = clamp.(temp_input, minimum(temp_points), maximum(temp_points))
+    dens_input = clamp_with_warning!(dens_input, dens_points, "dens_input")
+    temp_input = clamp_with_warning!(temp_input, temp_points, "temp_input")
 
     # Perform the interpolation
-    interpolated_value = 10 .^ interpolator.(log10.(dens_input), log10.(temp_input)) .* 1e-6 # [m³ s⁻¹]
+    interpolated_value = interpolator.(dens_input, temp_input) # [cm³ s⁻¹]
 
     println("selected wavelength: " * "$lambda_key [A]")
 
     return interpolated_value, lambda_key
 end
 
-
+function clamp_with_warning!(input, coordinate, variable_name)
+    clamped_input = clamp.(input, minimum(coordinate), maximum(coordinate))
+    if any(clamped_input .!= input)
+        @warn "Values in $variable_name were outside the boundaries and have been clamped."
+    end
+    return clamped_input
+end
