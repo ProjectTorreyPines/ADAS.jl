@@ -14,8 +14,9 @@ function get_adf15_datafile(Element::Symbol, Z::Float64; bundling_model::String 
     element_string = lowercase(string(Element))
 
     path_data = data_directory[:adf15]
+    
+    pattern = ".*" * bundling_model * "#" * "[A-Za-z][a-z]?" * string(Int64(Z)) * ".dat"
 
-    pattern = ".*" * bundling_model * "#" * "[A-Za-z][a-z]?\\d+\\.dat"
     rg = Regex(pattern)
 
     # List all files in the directory
@@ -52,8 +53,6 @@ function get_adf15_datafile(Element::Symbol, Z::Float64; bundling_model::String 
 
     return fullname
 end
-
-path = "/home/cappellil/ADAS/ADAS.jl/data/adf15/pec40#w_ic#w0.dat"
 
 function read_adf15(path::String; order::Int64=1)
 
@@ -239,7 +238,7 @@ function get_pec_interpolated_value(pec_dict, lambda_input, dens_input, temp_inp
     # Perform the interpolation
     interpolated_value = interpolator.(dens_input, temp_input) # [cm³ s⁻¹]
 
-    println("selected wavelength: " * "$lambda_key [A]")
+    println("selected wavelength: " * "$lambda_key [Å]")
 
     return interpolated_value, lambda_key
 end

@@ -18,6 +18,12 @@ PEC, lambda, pec_struct = get_pec(Element, Z)
 
 ## ----- functions and output ----- ##
 
+struct PEC_struct{T,F,D}
+    PEC::T
+    wavelength::F
+    pec_data::D
+end
+
 function get_pec(Element::Symbol, Z::Float64, lambda_input::Float64, dens_input::Union{Float64, Vector{Float64}}, temp_input::Union{Float64, Vector{Float64}}; bundling_model::String="ic")
     
     datafile = get_adf15_datafile(Element, Z; bundling_model)
@@ -42,7 +48,7 @@ function get_pec(Element::Symbol, Z::Float64, lambda_input::Float64, dens_input:
     
     PEC, wavelength = get_pec_interpolated_value(log10pec_dict, lambda_input, dens, temp)
     
-    return PEC, wavelength, pec_struct
+    return PEC_struct(PEC, wavelength, pec_struct)
 end
 
 # Dispatch for Element::String
