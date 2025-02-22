@@ -57,13 +57,13 @@ function retrieve_ADAS_data(element::String; year::Union{String,Missing}="latest
     return retrieve_element_data(ADASdata(element, adas_type); year=year, type=type, metastable=metastable, adas_type=adas_type)
 end
 
-function get_element_data(element::String, paths::ADASPaths, adas_type::Symbol)::Dict
+function get_element_data(element::String, paths::ADASPaths, adas_type::Symbol)
     filepath = get_data_filepath(element, paths[:parsed_data][adas_type])
     println("Getting element $element data from file: $filepath")
     if !isfile(filepath)
         make_database(element, paths, adas_type)
     end
-    data = load_data(filepath)
+    data = load_data(filepath)::Dict
     return data
 end
 
