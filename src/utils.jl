@@ -210,7 +210,7 @@ function get_ionization_rate(imp::Union{String,Symbol}; kw...)
     ntemp = length(scd.data.axis.Te)
     nZ = length(scd.data.rates)
     rate = zeros(nZ, ndens, ntemp)
-
+    #@show scd
     for Z in 1:nZ
         rate[Z, :, :] .= scd.data.rates[Z].values[:, :]
     end
