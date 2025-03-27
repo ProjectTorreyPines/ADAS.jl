@@ -110,7 +110,7 @@ end
 function get_element_data(element::String, adas_type::Symbol)::Dict
     filepath = get_parsed_data_filepath(element, data_paths[:parsed_data][adas_type])
     if !isfile(filepath)
-        make_database(element, paths, adas_type)
+        make_database(element, data_paths, adas_type)
     end
     println("Getting element $element data from file: $filepath")
     data = load_data(filepath)
