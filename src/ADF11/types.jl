@@ -23,7 +23,7 @@ abstract type ParentCrossCouplingCoeffs <: ADASRate end
 abstract type MeanChargeStateSquared <: ADASRate end
 abstract type MeanChargeState <: ADASRate end
 
-const adf11_types = Dict(
+adas_type_dict[:adf11] = Dict(
     "acd" => (Recombination, "effective recombination coefficients"),
     "scd" => (Ionization, "effective ionization coefficients"),
     "prb" => (RecombinationBremsstrahlung, "Continuum and line power driven by recombination and Bremsstrahlung of dominant ions"),
@@ -44,23 +44,23 @@ const adf11_types = Dict(
 
 function show_adf11_types()
     println("----------- adf11 types ------------")
-    for (k, v) in adf11_types
+    for (k, v) in adas_type_dict[:adf11]
         println("'$k' : $(v[2])")
     end
-    return print("--------------------------------------")
+    println("--------------------------------")
 end
 
 function get_type_adf11(type)
-    @assert type ∈ keys(adf11_types) "$type not in $(keys(adf11_types))"
-    return adf11_types[type][1]
+    @assert type ∈ keys(adas_type_dict[:adf11]) "$type not in $(keys(adas_type_dict[:adf11]))"
+    return adas_type_dict[:adf11][type][1]
 end
 
-struct ADASBlock
+struct ADF11Block <: ADASBlock
     header::String
     content::Vector{String}
 end
-
-struct ADASHeader
+ADF11Block(s::Vector{String}) = ADF11Block(s[1], s[2:end])
+struct ADF11Header <: ADASHeader
     n_ions::Int64
     n_ne::Int64
     n_Te::Int64
@@ -69,50 +69,54 @@ struct ADASHeader
     details::String
 end
 
-function ADASHeader(block::ADASBlock)
+function ADF11Header(block::ADF11Block)
     header = block.content[1]
     data = parse.(Int64, split(header)[1:5])
     details = join(split(header)[6:end], " ")
-    @debug "ADASHeader : data=$data; details=$details"
-    return ADASHeader(data..., details)
+    @debug "ADF11Header : data=$data; details=$details"
+    return ADF11Header(data..., details)
 end
 
 struct ADASAxis
-    log_Te::Vector{Float64}
-    log_ne::Vector{Float64}
+    log10_Te::Vector{Float64}
+    log10_ne::Vector{Float64}
     Te::Vector{Float64}
     ne::Vector{Float64}
     unit_Te::String
     unit_ne::String
 end
 
-function ADASAxis(block::ADASBlock, header::ADASHeader; unit_ne="m^-3") #TODO: use unitful to manage units
-    log_Te = Vector{Float64}()
-    log_ne = Vector{Float64}()
+function ADASAxis(block::ADF11Block, header::ADF11Header; unit_ne="m^-3") #TODO: use unitful to manage units
+    log10_Te = Vector{Float64}()
+    log10_ne = Vector{Float64}()
     idx = 1
-    while length(log_ne) < header.n_ne
-        push!(log_ne, parse.(Float64, [n for n in split(block.content[idx])])...)
+    while length(log10_ne) < header.n_ne
+        push!(log10_ne, parse.(Float64, [n for n in split(block.content[idx])])...)
         idx += 1
     end
-    while length(log_Te) < header.n_Te
-        push!(log_Te, parse.(Float64, [t for t in split(block.content[idx])])...)
+    while length(log10_Te) < header.n_Te
+        push!(log10_Te, parse.(Float64, [t for t in split(block.content[idx])])...)
         idx += 1
     end
     if unit_ne == "m^-3"
-        log_ne .= log_ne .+ 6.0
+        log10_ne .= log10_ne .+ 6.0
+    elseif unit_ne == "cm^-3"
+
+    else
+        error("Invalid unit_ne: $unit_ne")
     end
-    return ADASAxis(log_Te, log_ne, 10 .^ log_Te, 10 .^ log_ne, "eV", unit_ne)
+    return ADASAxis(log10_Te, log10_ne, 10 .^ log10_Te, 10 .^ log10_ne, "eV", unit_ne)
 end
 
-struct ADASRates{T}
+struct ADF11Rates{T} <: ADASRates{T}
     igrnd::Union{Int64,Nothing}
     iptr::Union{Int64,Nothing}
     Z::Int64
-    log_values::T
+    log10_values::T
     values::T
 end
 
-function ADASRates(block::ADASBlock, header::ADASHeader; unit_rates="m^3")
+function ADF11Rates(block::ADF11Block, header::ADF11Header; unit_rates="m^3")
     Z = get_block_attr(block.header, "Z1")
     igrd = get_block_attr(block.header, "IGRD")
     iptr = get_block_attr(block.header, "IPRT")
@@ -127,42 +131,42 @@ function ADASRates(block::ADASBlock, header::ADASHeader; unit_rates="m^3")
     if unit_rates == "m^3"
         log10_values .= log10_values .- 6.0
     end
-    return ADASRates(igrd, iptr, Z, log10_values, 10.0 .^ log10_values)
+    return ADF11Rates(igrd, iptr, Z, log10_values, 10.0 .^ log10_values)
 end
 
 struct adf11Data{T}
     filepath::String
-    header::ADASHeader
+    header::ADF11Header
     axis::ADASAxis
     rates::T
     units::String
 end
 
 function adf11Data(filepath::String; metastable=false)
-    lines = read_adas_file(filepath)
+    lines = read_file(filepath)
     comments = get_comments(lines)
     units = get_units(comments)
     blocks = split_blocks(lines)
-    header = ADASHeader(blocks[1])
+    header = ADF11Header(blocks[1])
     if metastable
         axis = ADASAxis(blocks[3], header)
-        rates = Dict{Int64,Vector{ADASRates}}()
+        rates = Dict{Int64,Vector{ADF11Rates}}()
         for block in blocks
             Z = get_block_attr(block.header, "Z1")
             if Z !== nothing
                 if !(Z in collect(keys(rates)))
-                    rates[Z] = Vector{ADASRates}()
+                    rates[Z] = Vector{ADF11Rates}()
                 end
-                push!(rates[Z], ADASRates(block, header))
+                push!(rates[Z], ADF11Rates(block, header))
             end
         end
     else
         axis = ADASAxis(blocks[2], header)
-        rates = Dict{Int64,ADASRates}()
+        rates = Dict{Int64,ADF11Rates}()
         for block in blocks
             Z = get_block_attr(block.header, "Z1")
             if Z !== nothing
-                rates[Z] = ADASRates(block, header)
+                rates[Z] = ADF11Rates(block, header)
             end
         end
     end
@@ -170,9 +174,8 @@ function adf11Data(filepath::String; metastable=false)
 end
 
 struct adf11File{T} <: ADASFile{T}
-    name::String
     element::String
-    path::String
+    filepath::String
     year::String
     metastable::Bool
     type::String
@@ -180,8 +183,8 @@ struct adf11File{T} <: ADASFile{T}
     md5::Vector{UInt8}
 end
 
-function adf11File(filename::String, filepath::String)
-    name = filename
+function adf11File(filepath::String)
+    filename = basename(filepath)
     element = match(Regex("(?<=\\_)(.*?)(?=\\.|\\#)"), filename).captures[1]
     type = match(Regex("(.*?)(?=[0-9]{2})"), filename).captures[1]
     year = match(Regex("([0-9]{2})"), filename).captures[1]
@@ -191,18 +194,9 @@ function adf11File(filename::String, filepath::String)
         metastable = false
     end
     data = adf11Data(filepath; metastable=metastable)
-    return adf11File{get_type_adf11(type)}(name, element, filepath, year, metastable, type, data, checksum(filepath))
+    return adf11File{get_type_adf11(type)}(element, filepath, year, metastable, type, data, checksum(filepath))
 end
 
-function checksum(filepath)
-    open(filepath) do f # The open function opens the file located at filepath and assigns the file handle to the variable f within the scope of the do block.
-                        # When the block finishes executing, open automatically closes the file, even if an error occurs, ensuring safe and efficient file handling.
-        return Array(md5(f)) # Converts the hash into an array of bytes for easy manipulation or comparison.
-                             # MD5 (Message Digest 5) is one specific hash function. It produces a fixed-size output (e.g., 128 bits for MD5), regardless of the size of the input.
-                             # Is deterministic, meaning the same input will always produce the same hash.
-                             # For MD5 the hash is represented with 32 hexadecimal characters (e.g., 5d41402abc4b2a76b9719d911017c592)
-                             # each hash is a unique blue print uniquely identifying data
-    end
-end
+
 
 const ADF11 = Dict{String,Dict{String,Dict{String,Dict{String,adf11File}}}}

@@ -8,7 +8,7 @@ include("types.jl")
 
 include("parser.jl")
 
-function get_database(adf11_files::Vector{<:adf11File})
+function vec2dict(adf11_files::Vector{<:adf11File})
     database = Dict{String,Dict{String,Dict{String,Dict{String,adf11File}}}}()
     for file in adf11_files
         if !(file.element in keys(database))
@@ -37,9 +37,9 @@ end
 #     return load_database(database_file)
 # end
 
-function retrieve_adf11_element_data(data; year::Union{String,Missing}="latest", type::String="scd", metastable::Bool=false)
+function retrieve_adf11_element_data(data::Dict; year::Union{String,Missing}="latest", type::String="scd", metastable::Bool=false)
     type = lowercase(type)
-    types = collect(keys(adf11_types))
+    types = collect(keys(adas_type_dict[:adf11]))
     if !(type in types)
         error("Cannot find type $type for adf11 format. Available types: $types")
     end
