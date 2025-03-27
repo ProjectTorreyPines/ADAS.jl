@@ -102,13 +102,12 @@ linestyle(i) = ls[i%length(ls)+1]
     end
     @assert iwl ⊆ 1:length(e.rate) "Invalid wavelength index: $iwl ∉ $(1) : $(length(e.rate))"
     colors = distinguishable_colors(length(iwl), [RGB(1, 1, 1), RGB(0, 0, 0)]; dropseed=true)
-
-    for i in iwl
+    for (i_,i) in enumerate(iwl)
         for (j,ne_) in enumerate(ne)
         rate = e.rate[i](ne_, Te)
         @series begin
             seriestype := :line
-            color := colors[i]
+            color := colors[i_]
             linestyle := :solid
             linewidth := 2.0
             xlabel := "Te [eV]"
