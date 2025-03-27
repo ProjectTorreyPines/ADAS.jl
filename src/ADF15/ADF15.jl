@@ -3,7 +3,6 @@ Author: Luca Cappelli (cappellil@fusion.gat.com)
 ADAS.jl (c) 2024
 =#
 include("types.jl")
-include("parser2.jl")
 
 
 

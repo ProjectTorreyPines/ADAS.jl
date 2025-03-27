@@ -260,42 +260,42 @@ end
 #     end
 # end
 
-@recipe function rplot_dp(Lz_data::Lz_ADAS; ne=1e20, Te=[1:1:1000]..., ylims=[1e-35, 1e-30])
-    #colors = map(col -> (red(col), green(col), blue(col)), cols)
-    Lz = Lz_data.Lztot(ne, Te)
+# @recipe function rplot_dp(Lz_data::Lz_ADAS; ne=1e20, Te=[1:1:1000]..., ylims=[1e-35, 1e-30])
+#     #colors = map(col -> (red(col), green(col), blue(col)), cols)
+#     Lz = Lz_data.Lztot(ne, Te)
 
-    @series begin
-        seriestype := :line
-        linestyle := :solid
-        linewidth := 2.0
-        xlabel := "Te [eV]"
-        xscale := :log10
-        yscale := :log10
-        title := "ADAS cooling rates"
-        ylabel := "cooling rates [W.m^3]"
-        label := "$(Lz_data.imp)"
-        Te, Lz
-    end
+#     @series begin
+#         seriestype := :line
+#         linestyle := :solid
+#         linewidth := 2.0
+#         xlabel := "Te [eV]"
+#         xscale := :log10
+#         yscale := :log10
+#         title := "ADAS cooling rates"
+#         ylabel := "cooling rates [W.m^3]"
+#         label := "$(Lz_data.imp)"
+#         Te, Lz
+#     end
 
-end
+# end
 
-@recipe function rplot_dp(zeff::Zeff; ne=1e20, fraction=[0.0025, 0.005, 0.0075, 0.01, 0.015, 0.02], Te=collect(1:1:1000), ylims=[1.0, 8.00])
-    #colors = map(col -> (red(col), green(col), blue(col)), cols)
+# @recipe function rplot_dp(zeff::Zeff; ne=1e20, fraction=[0.0025, 0.005, 0.0075, 0.01, 0.015, 0.02], Te=collect(1:1:1000), ylims=[1.0, 8.00])
+#     #colors = map(col -> (red(col), green(col), blue(col)), cols)
 
-    for f in fraction
-        @series begin
-            seriestype := :line
-            linestyle := :solid
-            linewidth := 2.0
-            xlabel := "Te [eV]"
-            xscale := :log10
-            ylim := ylims
-            title := "Z_{eff} C-E for $(zeff.af.imp)"
-            ylabel := "Z_{eff}"
-            label := "xi_{$(zeff.af.imp)} = $f"
-            Te, zeff(f, ne, Te)
-        end
-    end
+#     for f in fraction
+#         @series begin
+#             seriestype := :line
+#             linestyle := :solid
+#             linewidth := 2.0
+#             xlabel := "Te [eV]"
+#             xscale := :log10
+#             ylim := ylims
+#             title := "Z_{eff} C-E for $(zeff.af.imp)"
+#             ylabel := "Z_{eff}"
+#             label := "xi_{$(zeff.af.imp)} = $f"
+#             Te, zeff(f, ne, Te)
+#         end
+#     end
 
-end
+# end
 
