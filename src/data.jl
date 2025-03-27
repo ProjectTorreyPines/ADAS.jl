@@ -109,7 +109,6 @@ function load_element_data!(data, element, adas_type)
 end
 function get_element_data(element::String, adas_type::Symbol)::Dict
     filepath = get_parsed_data_filepath(element, data_paths[:parsed_data][adas_type])
-
     if !isfile(filepath)
         make_database(element, paths, adas_type)
     end
