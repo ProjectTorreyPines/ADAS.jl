@@ -1,6 +1,6 @@
 
 using ADAS, Plots
-impurities = [:Ne, :Ar, :Kr]
+impurities = [:Be, :Ne, :Ar, :Kr, :Cr, :W]
 color_ = [:blue,:green, :red, :black,:cyan]
 Lz = Dict(imp => ADAS.get_cooling_rates(imp) for imp in impurities);
 using Plots

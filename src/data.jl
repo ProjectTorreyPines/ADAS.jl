@@ -148,8 +148,10 @@ end
 function make_database(element, adas_type::Symbol)
     element = lowercase(element)
     data = get_file_list(data_paths[:raw_data][adas_type], adas_type)
-    @assert element ∈ keys(data)
-    return dump_data(element, data_paths[:parsed_data][adas_type], data)
+
+    dict = vec2dict(data)
+    @assert element ∈ keys(dict) "Element $element not found in $(keys(dict))"
+    return dump_data(element, data_paths[:parsed_data][adas_type], dict[element])
 end
 
 build_ADAS_database(; adas_type=[:adf15, :adf11]) = make_database(adas_type)
