@@ -1,0 +1,176 @@
+    3    /W : 9 photon emissivity coefficients/
+--------------------------------------------------------------------------------
+    1    1    1    1    1    1    1    1    1    1    1    1    1    1
+    1    1    1    1    1    1    1    1    1    1    1    1    1    1
+    1    1    1    1    1    1    1    1    1    1    1    1    1    1
+    1    1    1    1    1    1    1    1    1    1    1    1    1    1
+    1    1    1    1    1    1    1    1    1    1    1    1    1    1
+    1    1    1    1    1
+--------------------------------------------------------------------------------
+//#01/p00/ 00/p01/ 01/p02/ 02/p03/ 03/p04/ 04/p05/ 05/p06/ 06/p07/ 07/p08/ 08/  
+      p09/ 09/p10/ 10/p11/ 11/p12/ 12/p13/ 13/p14/ 14/p15/ 15/p16/ 16/p17/ 17/  
+      p18/ 18/p19/ 19/p20/ 20/p21/ 21/p22/ 22/p23/ 23/p24/ 24/p25/ 25/p26/ 26/  
+      p27/ 27/p28/ 28/p29/ 29/p30/ 30/p31/ 31/p32/ 32/p33/ 33/p34/ 34/p35/ 35/  
+      p36/ 36/p37/ 37/p38/ 38/p39/ 39/p40/ 40/p41/ 41/p42/ 42/p43/ 43/p44/ 44/  
+      p45/ 45/p46/ 46/p47/ 47/p48/ 48/p49/ 49/p50/ 50/p51/ 51/p52/ 52/p53/ 53/  
+      p54/ 54/p55/ 55/p56/ 56/p57/ 57/p58/ 58/p59/ 59/p60/ 60/p61/ 61/p62/ 62/  
+      p63/ 63/p64/ 64/p65/ 65/p66/ 66/p67/ 67/p68/ 68/p69/ 69/p70/ 70/p71/ 71/  
+      p72/ 72/p73/ 73/p74/ 74/                                                  
+--------------------------------------------------------------------------------
+  122.044    7  14 /pl=01:ss= 9:pb= 1:sz= 9/type=excit/ispb = t/isel =    1
+ 1.00E+10 1.00E+11 1.00E+12 1.00E+13 1.00E+14 1.00E+15 1.00E+16
+ 1.72E+00 2.59E+00 4.31E+00 8.62E+00 1.72E+01 4.31E+01 8.62E+01 1.29E+02
+ 1.72E+02 2.59E+02 4.31E+02 8.62E+02 1.72E+03 2.59E+03
+ 1.39E-37 3.89E-29 2.02E-22 1.88E-17 4.86E-15 1.09E-13 2.58E-13 3.21E-13
+ 3.47E-13 3.59E-13 3.42E-13 2.89E-13 2.28E-13 1.94E-13
+ 1.39E-37 3.89E-29 2.02E-22 1.88E-17 4.86E-15 1.09E-13 2.58E-13 3.21E-13
+ 3.47E-13 3.59E-13 3.42E-13 2.89E-13 2.28E-13 1.94E-13
+ 1.39E-37 3.89E-29 2.02E-22 1.88E-17 4.86E-15 1.09E-13 2.58E-13 3.21E-13
+ 3.47E-13 3.59E-13 3.42E-13 2.89E-13 2.28E-13 1.94E-13
+ 1.39E-37 3.89E-29 2.02E-22 1.88E-17 4.86E-15 1.09E-13 2.58E-13 3.21E-13
+ 3.47E-13 3.59E-13 3.42E-13 2.89E-13 2.28E-13 1.94E-13
+ 1.39E-37 3.89E-29 2.02E-22 1.88E-17 4.87E-15 1.09E-13 2.58E-13 3.21E-13
+ 3.47E-13 3.59E-13 3.42E-13 2.89E-13 2.28E-13 1.94E-13
+ 1.41E-37 3.93E-29 2.04E-22 1.90E-17 4.89E-15 1.09E-13 2.58E-13 3.22E-13
+ 3.48E-13 3.60E-13 3.43E-13 2.89E-13 2.28E-13 1.95E-13
+ 1.59E-37 4.34E-29 2.20E-22 2.01E-17 5.10E-15 1.12E-13 2.64E-13 3.29E-13
+ 3.55E-13 3.68E-13 3.51E-13 2.96E-13 2.34E-13 1.99E-13
+  234.917    7  14 /pl=01:ss= 9:pb= 1:sz= 9/type=excit/ispb = t/isel =    2
+ 1.00E+10 1.00E+11 1.00E+12 1.00E+13 1.00E+14 1.00E+15 1.00E+16
+ 1.72E+00 2.59E+00 4.31E+00 8.62E+00 1.72E+01 4.31E+01 8.62E+01 1.29E+02
+ 1.72E+02 2.59E+02 4.31E+02 8.62E+02 1.72E+03 2.59E+03
+ 1.79E-20 3.99E-16 1.09E-12 3.54E-10 5.57E-09 2.45E-08 3.67E-08 4.04E-08
+ 4.18E-08 4.23E-08 4.11E-08 3.74E-08 3.27E-08 2.97E-08
+ 1.79E-20 3.99E-16 1.09E-12 3.54E-10 5.57E-09 2.45E-08 3.67E-08 4.04E-08
+ 4.18E-08 4.23E-08 4.11E-08 3.74E-08 3.27E-08 2.97E-08
+ 1.79E-20 3.99E-16 1.09E-12 3.54E-10 5.57E-09 2.45E-08 3.67E-08 4.04E-08
+ 4.18E-08 4.23E-08 4.11E-08 3.74E-08 3.27E-08 2.97E-08
+ 1.79E-20 3.99E-16 1.09E-12 3.54E-10 5.57E-09 2.45E-08 3.67E-08 4.04E-08
+ 4.18E-08 4.23E-08 4.11E-08 3.74E-08 3.27E-08 2.97E-08
+ 1.79E-20 3.99E-16 1.09E-12 3.54E-10 5.57E-09 2.45E-08 3.67E-08 4.04E-08
+ 4.18E-08 4.23E-08 4.11E-08 3.74E-08 3.27E-08 2.97E-08
+ 1.78E-20 3.99E-16 1.09E-12 3.54E-10 5.56E-09 2.45E-08 3.67E-08 4.03E-08
+ 4.18E-08 4.22E-08 4.10E-08 3.73E-08 3.26E-08 2.97E-08
+ 1.77E-20 3.97E-16 1.08E-12 3.53E-10 5.55E-09 2.43E-08 3.63E-08 4.00E-08
+ 4.14E-08 4.18E-08 4.06E-08 3.70E-08 3.24E-08 2.95E-08
+  254.005    7  14 /pl=01:ss= 9:pb= 1:sz= 9/type=excit/ispb = t/isel =    3
+ 1.00E+10 1.00E+11 1.00E+12 1.00E+13 1.00E+14 1.00E+15 1.00E+16
+ 1.72E+00 2.59E+00 4.31E+00 8.62E+00 1.72E+01 4.31E+01 8.62E+01 1.29E+02
+ 1.72E+02 2.59E+02 4.31E+02 8.62E+02 1.72E+03 2.59E+03
+ 1.09E-33 3.05E-25 1.58E-18 1.48E-13 3.81E-11 8.51E-10 2.02E-09 2.52E-09
+ 2.72E-09 2.82E-09 2.68E-09 2.26E-09 1.78E-09 1.52E-09
+ 1.09E-33 3.05E-25 1.58E-18 1.48E-13 3.81E-11 8.51E-10 2.02E-09 2.52E-09
+ 2.72E-09 2.82E-09 2.68E-09 2.26E-09 1.78E-09 1.52E-09
+ 1.09E-33 3.05E-25 1.58E-18 1.48E-13 3.81E-11 8.51E-10 2.02E-09 2.52E-09
+ 2.72E-09 2.82E-09 2.68E-09 2.26E-09 1.78E-09 1.52E-09
+ 1.09E-33 3.05E-25 1.58E-18 1.48E-13 3.81E-11 8.51E-10 2.02E-09 2.52E-09
+ 2.72E-09 2.82E-09 2.68E-09 2.26E-09 1.78E-09 1.52E-09
+ 1.09E-33 3.05E-25 1.58E-18 1.48E-13 3.82E-11 8.51E-10 2.02E-09 2.52E-09
+ 2.72E-09 2.82E-09 2.68E-09 2.26E-09 1.78E-09 1.52E-09
+ 1.11E-33 3.08E-25 1.60E-18 1.49E-13 3.83E-11 8.53E-10 2.02E-09 2.53E-09
+ 2.73E-09 2.82E-09 2.69E-09 2.27E-09 1.79E-09 1.53E-09
+ 1.25E-33 3.40E-25 1.73E-18 1.57E-13 4.00E-11 8.78E-10 2.07E-09 2.58E-09
+ 2.78E-09 2.88E-09 2.75E-09 2.32E-09 1.83E-09 1.56E-09
+c-------------------------------------------------------------------------------
+ 
+C  root partition information
+C  ==========================
+C
+C  nuclear charge : 74
+C  ion charge+1   : 10
+C
+C  population calculation information
+C  ----------------------------------
+C
+C  population processing code: adas810
+C
+C  adf04 source file    : adf04_copmm#74_ca_40#w9_t3.dat
+C  adf18/a17_p208 file  : NULL
+C
+C  meta. ion. coeff. selector  : 
+ 
+C  options  : lnorm =T  lpsel =F  lzsel =T  liosel=F
+C           : lhsel =F  lrsel =F  lisel =F  lnsel =F
+ 
+C  energy levels
+C  -------------
+C
+C   lv      configuration    (2S+1)L(w-1/2)      energy (cm^-1)
+C  ---   ------------------- --------------      --------------
+c    1   60963A52B54C          (0)0( 104.0)             0.0
+c    2   60963A52B53C51D       (0)0(1399.5)        425681.8
+c    3   60963A52B53C51E       (0)0(1959.5)        819375.2
+ 
+ 
+ 
+c-------------------------------------------------------------------------------
+ 
+C  superstage partition information
+C  ================================
+C
+C  element symbol   : W
+C  parent template  : 
+C  partition level  :  1
+C  superstage label :  9
+C
+C  tabulation       : photon emissivity coefft (te,ne)
+C  units            : ph. emis coef(cm^3 s^-1); te (ev); ne (cm^-3)
+C
+C  photon emissivity atomic transitions
+C  ------------------------------------
+C  
+C   isel  wvlen(A)            transition                type  ispb nspb
+C                                                             ispp nspp sz    tg pr wr
+C  ----- ---------- ----------------------------------- ----- ---- ---- --    -- -- --
+C      1   122.044    3(0)0(1959.5)-  1(0)0( 104.0)     excit   1    1   9     2  3  1
+C      2   234.917    2(0)0(1399.5)-  1(0)0( 104.0)     excit   1    1   9     1  1  2
+C      3   254.005    3(0)0(1959.5)-  2(0)0(1399.5)     excit   1    1   9     3  2  3
+c-------------------------------------------------------------------------------
+                                                                                
+C  code     : adas810
+C  producer : Adam Foster
+C  date     : 15/05/09
+                                                                                
+c-------------------------------------------------------------------------------
+
+C-----------------------------------------------------------------------
+C                               OPEN-ADAS
+C                               +++++++++
+C
+C This file has been downloaded from OPEN-ADAS (http://open.adas.ac.uk)
+C on 26-Mar-2025.
+C
+C TERMS AND CONDITIONS
+C --------------------
+C
+C The user of the OPEN-ADAS system and data (hereinafter "the User")
+C accepts the following terms and conditions:
+C
+C   1. The University of Strathclyde uses all reasonable endeavours to
+C      ensure the accuracy of the data provided and any information
+C      given, but the University makes no warranty, expressed or implied
+C      as to its accuracy, integrity, fitness for purpose and shall not
+C      be responsible for the use to which the data is put by the User
+C      and/or any consequences arising out of any inaccuracies or
+C      omissions.
+C
+C   2. Any downloaded OPEN-ADAS file is made available for the
+C      personal use of the User only.  It must not be used for any
+C      commercial application, incorporated into any web site or in
+C      any form re-distributed without express prior written permission
+C      from the ADAS Project. In particular, but not by way of
+C      limitation, it must not be:
+C        *  inserted into a managed database structure,
+C        *  redistributed along with a modelling or analysis code,
+C        *  made available on a public website.
+C
+C Permission for OPEN-ADAS data incorporation in non-commercial
+C code/system development for scientific advance will not be
+C unreasonably withheld, but will be subject to written agreement
+C on a case by case basis.
+C
+C The User will indemnify the University of Strathclyde and keep it
+C fully and effectively indemnified against each and every claim made
+C against the University as a result of the User's use of the data.
+C
+C-----------------------------------------------------------------------

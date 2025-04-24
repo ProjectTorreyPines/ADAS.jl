@@ -210,7 +210,7 @@ function get_ionization_rate(imp::Union{String,Symbol}; kw...)
     ntemp = length(scd.data.axis.Te)
     nZ = length(scd.data.rates)
     rate = zeros(nZ, ndens, ntemp)
-
+    #@show scd
     for Z in 1:nZ
         rate[Z, :, :] .= scd.data.rates[Z].values[:, :]
     end
@@ -248,8 +248,37 @@ function get_recombination_rate(imp::Union{String,Symbol}; kw...)
     return RecombinationRate(acd, Te, ne, Z, rate_, imp)
 end
 
+struct EmissionRate{U,R}
+    pec::U
+    Te::Vector{Float64}
+    ne::Vector{Float64}
+    rate::R
+    imp::Symbol
+    wls::Vector{Float64}
+end
 
+function get_emission_rate(imp::Union{String,Symbol}; type="pec", kw...)
+    pec = retrieve_ADAS_data(imp; type, kw...)
 
+    ndens = length(pec.data.axis.ne)
+    ntemp = length(pec.data.axis.Te)
+    nwv = length(pec.data.rates)
+    rate = zeros(nwv, ndens, ntemp)
+    #@show scd
+    Te = pec.data.axis.Te
+    ne = pec.data.axis.ne
+    wls = collect(keys(pec.data.rates))
+    p = sortperm(wls)
+    wls = wls[p]
+    rate_ = [Interpolations.linear_interpolation((ne, Te), rate.values[:, :]; extrapolation_bc=Interpolations.Flat()) for (kw, rate) in pec.data.rates][p]
+    return EmissionRate(pec, Te, ne, rate_, imp, wls)
+end
+
+function (e::EmissionRate)(ne, Te, i) 
+    @assert i <= length(e.rate) "provide a valid wavelength index (1 to $(length(e.rate)))"
+    return e.rate[i](ne, Te)
+end 
+get_Z(e::EmissionRate) = parse(Int64,e.pec.Z)
 
 function meshgrid(x, y)
     return first.(Iterators.product(x, y)), last.(Iterators.product(x, y))

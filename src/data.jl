@@ -4,154 +4,158 @@ Company: General Atomics
 ADAS.jl (c) 2024
 =#
 
-ADASPaths = Dict{Symbol,Dict{Symbol,String}}
-const parsed_data_directory = Dict(:adf11 => joinpath(@__DIR__, "../parsed_data/adf11"))
 
-const data_directory = Dict(:adf11 => joinpath(@__DIR__, "../data/adf11"))
+# @__DIR__:
+# This macro represents the directory of the file in which this code resides.
+# For example, if this file is located at /home/user/MyModule/src/myfile.jl, @__DIR__ evaluates to /home/user/MyModule/src.ADASPaths = Dict{Symbol,Dict{Symbol,String}}
+const data_paths = Dict(:parsed_data=>Dict(), :raw_data=>Dict())
 
-mutable struct ADASData
-    adf11::ADF11
-    paths::ADASPaths
+
+"""
+    set_adas_raw_data_directory!(dir=joinpath(@__DIR__, "../"))
+
+Set the root directory for ADAS raw data files (adf11 and adf15).
+
+The function iterates through the ADAS data types (`:adf11` and `:adf15`),
+and sets the corresponding paths in the `data_paths[:raw_data]` dictionary.
+If the specified directory does not exist, it creates the directory.
+
+# Arguments
+- `dir::String`: The root directory where the "data" subdirectory containing "adf11" and "adf15" subdirectories are located.
+                   Defaults to the parent directory of the current file.
+"""
+function set_adas_raw_data_directory!(dir=joinpath(@__DIR__, "../"))
+    for adas_type in [:adf11,:adf15]
+        data_paths[:raw_data][adas_type] = joinpath(dir, "data/$(string(adas_type))")
+    if !isdir(data_paths[:raw_data][adas_type])
+            mkpath(data_paths[:raw_data][adas_type])
+    end
+end
 end
 
-const ADASdata = ADASData(Dict(), Dict(:parsed_data => parsed_data_directory, :raw_data => data_directory))
 
-(db::ADASData)(element; adas_type::Symbol=:adf11) = (db::ADASData)(element, adas_type)
+"""
+    set_adas_parsed_data_directory!(dir::String=joinpath(@__DIR__, "../"))
 
-(db::ADASData)(element, adas_type::String) = (db::ADASData)(element, Symbol(adas_type))
+Set the directory where parsed ADAS data files are stored.
 
-function (ADASdata::ADASData)(element, adas_type::Symbol)
-    @assert adas_type == :adf11 "getting data of type $adas_type is not implemented yet..."
-    return retrieve_element_data(element, getfield(ADASdata, adas_type), adas_type)
+This function updates the `data_paths` dictionary with the specified directory for both `adf11` and `adf15` data types.
+If the specified directory does not exist, it creates the directory.
+
+# Arguments
+- `dir::String`: The base directory where the parsed data directories for `adf11` and `adf15` are located.
+                   Defaults to the parent directory of the current file.
+"""
+function set_adas_parsed_data_directory!(dir=joinpath(@__DIR__, "../"))
+    for adas_type in [:adf11, :adf15]
+        data_paths[:parsed_data][adas_type] = joinpath(dir, "parsed_data/$(string(adas_type))")
+        if !isdir(data_paths[:raw_data][adas_type])
+            mkpath(data_paths[:raw_data][adas_type])
+        end
+    end
 end
 
-retrieve_element_data(element::Symbol, data, adas_type::Symbol) = retrieve_element_data(string(element), data, adas_type)
+set_adas_raw_data_directory!()
+set_adas_parsed_data_directory!()
 
-function retrieve_element_data(element::String, data, adas_type::Symbol)
+mutable struct ADASDatabase
+    adf11::Dict
+    adf15::Dict
+end
+Base.getindex(db::ADAS.ADASDatabase, s::Symbol) = getproperty(db, s)
+const ADASdb = ADASDatabase(Dict(),Dict())
+
+(db::ADASDatabase)(element, adas_type) = retrieve_element_database(element, db, adas_type)
+
+function retrieve_element_database(element::Union{String,Symbol}, db::ADASDatabase, adas_type::Union{Symbol,String})
     element = string(element)
     element = lowercase(element)
+    adas_type = Symbol(adas_type)
+    @assert (adas_type ∈ propertynames(db)) "getting data of type $adas_type is not implemented yet... Available types: $(propertynames(db))"
+    data = getproperty(db, adas_type)
     @debug "looking for $element in $(keys(data))"
 
     if element ∉ keys(data)
-        println("ADASdata.paths:", ADASdata.paths)
-        data[element] = get_element_data(element, ADASdata.paths, adas_type)[element]
+        load_element_data!(data, element, adas_type)
     end
 
     @assert element ∈ keys(data) "Cannot find element '$element' in database. Elements available are: $(collect(keys(data)))"
     return data[element]
 end
 
-function retrieve_element_data(args...; adas_type::Symbol=:adf11, kwargs...)
+function retrieve_element_data(data_elem::Dict; adas_type=missing, kwargs...)
     if adas_type == :adf11
-        return retrieve_adf11_element_data(args...; kwargs...)
+        return retrieve_adf11_element_data(data_elem; kwargs...)
+    elseif adas_type == :adf15
+        return retrieve_adf15_element_data(data_elem; kwargs...)
     else
         error("Getting data of type $adas_type is not implemented yet...")
     end
 end
 
-function retrieve_ADAS_data(element::Symbol; kw...)
-    return retrieve_ADAS_data(string(element); kw...)
-end
+"""alias for retrieve_element_data"""
+retrieve_ADAS_data(args...; kw...) = retrieve_element_data(args...; kw...)
 
-function retrieve_ADAS_data(element::String; year::Union{String,Missing}="latest", type::String="scd", metastable::Bool=false, adas_type=:adf11)
-    return retrieve_element_data(ADASdata(element, adas_type); year=year, type=type, metastable=metastable, adas_type=adas_type)
-end
-
-function get_element_data(element::String, paths::ADASPaths, adas_type::Symbol)
-    filepath = get_data_filepath(element, paths[:parsed_data][adas_type])
-    println("Getting element $element data from file: $filepath")
-    if !isfile(filepath)
-        make_database(element, paths, adas_type)
+function retrieve_element_data(element::Union{Symbol,String}; adas_type=missing, type="scd", kw...)
+    if ismissing(adas_type)
+        adas_type = get_adas_type(type) 
     end
-    data = load_data(filepath)::Dict
+    @assert istype(adas_type,type) "Cannot find type $type for adas_type $adas_type. Available types are: $(collect(keys(ADASdb[adas_type])))"
+    retrieve_element_data(ADASdb(element, adas_type); adas_type, type, kw...)
+end 
+
+function load_element_data!(data, element, adas_type)
+    data[element] = get_element_data(element, adas_type)
+end
+function get_element_data(element::String, adas_type::Symbol)::Dict
+    filepath = get_parsed_data_filepath(element, data_paths[:parsed_data][adas_type])
+    if !isfile(filepath)
+        make_database(element, adas_type)
+    end
+    println("Getting element $element data from file: $filepath")
+    data = load_data(filepath)
     return data
 end
 
-const colors = Dict{Int,Symbol}()
-colors[0] = :blue
-colors[1] = :red
-colors[2] = :green
-colors[3] = :magenta
-
-show_ADAS_data(element; adas_type=:adf11, kw...) = AbstractTrees.print_tree(ADASdata(element, adas_type); kw...)
-AbstractTrees.printnode(io::IO, a::ADASData) = printstyled("ADAS data: $(a.adf11.element)"; bold=true)
-AbstractTrees.printnode(io::IO, a::Dict{String,Dict{String,adf11File}}) = printstyled("years")
-AbstractTrees.printnode(io::IO, a::Dict{String,Dict{String,Dict{String,ADAS.adf11File}}}) = printstyled("adf11")
-AbstractTrees.printnode(io::IO, a::Dict{String,ADAS.adf11File}) = nothing
-
-
-show_ADAS_data(; adas_type=:adf11, kw...) = AbstractTrees.print_tree(get_database(ADASdata.paths[:raw_data][adas_type], adas_type); kw...)
-
-
-function dump_data(element, directory, data)
-    file_path = get_data_filepath(element, directory)
-    FileIO.save(file_path, data)
-    return nothing
+function get_adas_type(type)
+    String(type) ∈ keys(adas_type_dict[:adf15]) && return :adf15
+    String(type) ∈ keys(adas_type_dict[:adf11]) && return :adf11
+    error("Cannot find type $type in available types: \n adf11: $(collect(keys(adas_type_dict[:adf11]))) \n adf15: $(collect(keys(adas_type_dict[:adf15])))")
 end
 
-function dump_data(directory, data)
-    for (el, d) in data
-        dump_data(el, directory, d)
-    end
-    return nothing
+istype(adas_type, type) = String(type) ∈ collect(keys(adas_type_dict[adas_type]))
+
+
+
+
+
+export show_ADAS_files
+
+
+
+function make_database(adas_type::Symbol)
+    println("building database for $adas_type files in $(data_paths[:parsed_data][adas_type])")
+    data = get_file_list(data_paths[:raw_data][adas_type], adas_type)
+    dict = vec2dict(data)
+    return dump_data(data_paths[:parsed_data][adas_type], dict)
+end
+function make_database(adas_types::Vector{Symbol})
+    for adas_type in adas_types
+        make_database(adas_type)
+    end 
 end
 
-get_data_filepath(element, directory) = joinpath(directory, "$element.jld2")
-
-function load_data(path::String)
-    @debug "Loading jld2 file $path"
-    return FileIO.load(path) #BSON.load(path, @__MODULE__)
-end
-
-load_data(element::String, path::String) = load_data(get_data_filepath(element, path))
-
-function read_adas_file(filepath::String)
-    @debug "Reading ADAS file: $filepath"
-    @assert isfile(filepath) "File not found: $filepath"
-    fid = open(filepath, "r")
-    lines = readlines(fid)
-    close(fid)
-    return lines
-end
-
-function get_list_file(directory, FileType)
-    files_ = Vector{FileType}()
-    for (root, dirs, files) in walkdir(directory)
-        for file in files
-            if occursin(".dat", file)
-                push!(files_, FileType(file, joinpath(root, file)))
-            end
-        end
-    end
-    return files_
-end
-
-function make_database(paths, adas_type)
-    println("building database for $adas_type files in $paths")
-    data = get_database(paths[:raw_data][adas_type], adas_type)
-    return dump_data(paths[:parsed_data][adas_type], data)
-end
-
-function make_database(element, paths, adas_type)
+function make_database(element, adas_type::Symbol)
     element = lowercase(element)
-    data = get_database(paths[:raw_data][adas_type], adas_type)
-    @assert element ∈ keys(data)
-    return dump_data(element, paths[:parsed_data][adas_type], data)
+    data = get_file_list(data_paths[:raw_data][adas_type], adas_type)
+
+    dict = vec2dict(data)
+    @assert element ∈ keys(dict) "Element $element not found in $(keys(dict))"
+    return dump_data(element, data_paths[:parsed_data][adas_type], dict[element])
 end
 
-function build_ADAS_database(; parsed_data_path::Union{Missing,String}=missing)
-    local_ADASdata = deepcopy(ADASdata)
-    if !ismissing(parsed_data_path)
-        for (k, v) in local_ADASdata.paths[:parsed_data]
-            local_ADASdata.paths[:parsed_data][k] = joinpath(parsed_data_path, string(k))
-        end
+build_ADAS_database(; adas_type=[:adf15, :adf11]) = make_database(adas_type)
 
-    end
-
-    for adas_type in (f for f in propertynames(local_ADASdata) if f != :paths)
-        make_database(local_ADASdata.paths, adas_type)
-    end
-end
 
 # function build_ADAS_database(paths, adas_type)
 
@@ -159,23 +163,4 @@ end
 #     dump_data(paths[:parsed_data][adas_type], data)
 # end
 
-get_database(directory::String, adas_type) = get_database(directory::String, ADASType{adas_type}())
 
-get_database(directory::String, ::ADASType{:adf11}) = get_database(get_list_file(directory, adf11File))
-
-function Base.show(io::IO, ::MIME"text/plain", data::ADASData)
-    return print(io, "ADAS data: adf11: $(collect(keys(data.adf11)))")
-end
-
-function Base.show(io::IO, data::ADASData)
-    return print(io, "ADAS data: adf11: $(join(collect(keys(data.adf11)),"; "))")
-end
-
-Base.show(io::IO, ::MIME"text/plain", file::adf11File) = AbstractTrees.print_tree(file; maxdepth=1, indicate_truncation=false)
-AbstractTrees.printnode(file::adf11File) = printstyled(io, "ADAS adf11 data: $(file.name)"; bold=true)
-AbstractTrees.children(file::adf11File) = Dict(f => getproperty(file, f) for f in propertynames(file) if f != :data && f != :md5)
-
-
-function Base.show(io::IO, data::adf11File)
-    return print(io, "ADAS data | adf11 : $(data.name) ")
-end

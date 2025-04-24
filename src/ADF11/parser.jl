@@ -15,11 +15,11 @@ function get_block_attr(block_header::String, attr::String; outputformat=Int64)
 end
 
 function split_blocks(lines::Vector{String})
-    blocks = Vector{ADASBlock}()
+    blocks = Vector{ADF11Block}()
     iprevious = 1
     for i in 1:length(lines)
         if startswith(strip(lines[i]), "--") || startswith(strip(lines[i]), "C-")
-            push!(blocks, ADASBlock(lines[max(1, iprevious - 1)], lines[iprevious:i-1]))
+            push!(blocks, ADF11Block(lines[max(1, iprevious - 1)], lines[iprevious:i-1]))
             iprevious = i + 1
         end
 
@@ -28,14 +28,25 @@ function split_blocks(lines::Vector{String})
     return blocks
 end
 
+
 function get_comments(lines::Vector{String})
     comments = Vector{String}()
     for i in 1:length(lines)
-        if startswith(lines[i], "C")
+        if startswith(lines[i], "C") || startswith(lines[i], "c") || startswith(lines[i], "//")
             push!(comments, lines[i])
         end
     end
     return comments
+end
+
+function remove_comments(lines::Vector{String})
+    blocks = Vector{String}()
+    for i in 1:length(lines)
+        if !(startswith(lines[i], "C") || startswith(lines[i], "c") || startswith(lines[i], "//"))
+            push!(blocks, lines[i])
+        end
+    end
+    return blocks
 end
 
 function get_units(comments::Vector{String})

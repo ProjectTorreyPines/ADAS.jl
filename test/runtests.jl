@@ -9,7 +9,8 @@ using ADAS, Test
 function test_basic_functionalities()
     data = retrieve_ADAS_data("C"; year="latest", type="scd", metastable=false)
     # show  available ADAS data
-    show_ADAS_data()
+    show_ADAS_files()
+    show_ADAS_files(; adas_type=:adf15)
 
     # show  available ADAS data for C
     show_ADAS_data(:C)
@@ -23,11 +24,15 @@ function test_basic_functionalities()
 
     # retrieve abundance fraction
     af = ADAS.get_abundance_fraction(:Mo)
+
+    # retrieve emission rate
+    e = ADAS.get_emission_rate(:cr; Z=0, model="llu");
     return true
 end
 
 function test_database_building()
-    ADAS.build_ADAS_database(; parsed_data_path="test_parsed_data")
+    set_adas_parsed_data_directory!("test_parsed_data")
+    ADAS.build_ADAS_database()
     return true
 end
 
