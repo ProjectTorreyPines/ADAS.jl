@@ -19,11 +19,17 @@ end
 
 
 import Interpolations
-function get_cooling_rates(imp::Union{String,Symbol}; plt_year=missing)
-    plt = retrieve_ADAS_data(imp;type="plt", year = plt_year)
-    prb = retrieve_ADAS_data(imp;type="prb")
-    scd = retrieve_ADAS_data(imp;type="scd")
-    acd = retrieve_ADAS_data(imp;type="acd")
+function get_cooling_rates(imp::Union{String,Symbol}; year=missing, plt_year=missing, scd_year=missing, acd_year=missing, prb_year=missing)
+    if !ismissing(year)
+        plt_year = year
+        prb_year = year
+        scd_year = year
+        acd_year = year
+    end
+    plt = retrieve_ADAS_data(imp; type="plt", year=plt_year)
+    prb = retrieve_ADAS_data(imp; type="prb", year=prb_year)
+    scd = retrieve_ADAS_data(imp; type="scd", year=scd_year)
+    acd = retrieve_ADAS_data(imp; type="acd", year=acd_year)
 
 
     ndens = length(acd.data.axis.ne)
@@ -168,9 +174,14 @@ end
 
 
 
-function get_abundance_fraction(imp::Union{String,Symbol}; kw...)
-    scd = retrieve_ADAS_data(imp; type="scd", kw...)
-    acd = retrieve_ADAS_data(imp; type="acd", kw...)
+function get_abundance_fraction(imp::Union{String,Symbol}; year = missing, scd_year=missing, acd_year=missing)
+    if !ismissing(year)
+        scd_year = year
+        acd_year = year
+    end
+
+    scd = retrieve_ADAS_data(imp; type="scd", year=scd_year)
+    acd = retrieve_ADAS_data(imp; type="acd", year=acd_year)
 
     ndens = length(acd.data.axis.ne)
     ntemp = length(acd.data.axis.Te)
