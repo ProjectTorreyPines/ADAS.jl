@@ -126,7 +126,7 @@ end
 end
 
 
-@recipe function rplot_dp(rr::RadiationRates; ne=1e20, Zmin=0, Zmax=1000, Te=[1:1:1000]..., ylims=[1e-35, 1e-30])
+@recipe function rplot_dp(rr::RadiationRate; ne=1e20, Zmin=0, Zmax=1000, Te=[1:1:1000]..., ylims=[1e-35, 1e-30])
 
     colors = distinguishable_colors(length(rr.Z), [RGB(1, 1, 1), RGB(0, 0, 0)]; dropseed=true)
     #colors = map(col -> (red(col), green(col), blue(col)), cols)

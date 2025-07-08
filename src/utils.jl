@@ -81,7 +81,7 @@ struct AbundanceFractions{V<:Vector{<:AbundanceFraction}}
     afs::V
 end
 
-struct RadiationRates{U,I}
+struct RadiationRate{U,I}
     rates::U
     rates_grid::Array{Float64,3}
     Te::Vector{Float64}
@@ -91,7 +91,7 @@ struct RadiationRates{U,I}
     imp::Symbol
 end
 
-function get_radiation_rates(imp::Union{String,Symbol}; kw...)
+function get_radiation_rate(imp::Union{String,Symbol}; kw...)
     plt = retrieve_ADAS_data(imp; type="plt", kw...)
     rates = zeros(length(plt.data.rates), length(plt.data.axis.ne), length(plt.data.axis.Te))
     for Z in 1:length(plt.data.rates)
@@ -101,8 +101,11 @@ function get_radiation_rates(imp::Union{String,Symbol}; kw...)
     ne = plt.data.axis.ne
     Z = collect(1:length(plt.data.rates))
     rates_ = Interpolations.linear_interpolation((float.(Z), ne, Te), rates; extrapolation_bc=Interpolations.Flat())
-    return RadiationRates(rates_, rates, Te, ne, Z, plt, imp)
+    return RadiationRate(rates_, rates, Te, ne, Z, plt, imp)
 end
+
+(rr::RadiationRate)(Z, ne, Te) = rr.rates(Z, ne, Te)
+
 struct Zeff{Z,T,AF<:AbundanceFraction}
     t::Z
     t_grid::T
@@ -232,6 +235,52 @@ function get_ionization_rate(imp::Union{String,Symbol}; kw...)
     return IonizationRate(scd, Te, ne, Z, rate_, imp)
 end
 
+"""
+    (iz::IonizationRate)(Z, ne, Te)
+
+Call overload for `IonizationRate` objects, allowing them to be called as functions.
+Computes the ionization rate for a given atomic number `Z`, electron density `ne`, and electron temperature `Te`
+by delegating to the `rate` method of the `IonizationRate` instance.
+
+# Arguments
+- `Z`: Atomic number (integer)
+- `ne`: Electron density
+- `Te`: Electron temperature
+
+# Returns
+- Ionization rate as computed by the underlying `rate` method.
+
+"""
+(iz::IonizationRate)(Z,ne,Te)   = iz.rate(Z, ne, Te)
+
+struct ChargeExchangeRate{U,R}
+    ccd::U
+    Te::Vector{Float64}
+    ne::Vector{Float64}
+    Z::Vector{Int64}
+    rate::R
+    imp::Symbol
+end
+
+function get_cx_rate(imp::Union{String,Symbol}; kw...)
+    ccd = retrieve_ADAS_data(imp; type="ccd", kw...)
+
+    ndens = length(ccd.data.axis.ne)
+    ntemp = length(ccd.data.axis.Te)
+    nZ = length(ccd.data.rates)
+    rate = zeros(nZ, ndens, ntemp)
+    #@show ccd
+    for Z in 1:nZ
+        rate[Z, :, :] .= ccd.data.rates[Z].values[:, :]
+    end
+    Te = ccd.data.axis.Te
+    ne = ccd.data.axis.ne
+    Z = collect(0:nZ-1)
+    rate_ = Interpolations.linear_interpolation((float.(Z), ne, Te), rate; extrapolation_bc=Interpolations.Flat())
+    return ChargeExchangeRate(ccd, Te, ne, Z, rate_, imp)
+end
+
+(cx::ChargeExchangeRate)(Z, ne, Te) = cx.rate(Z, ne, Te)
 struct RecombinationRate{U,R}
     acd::U
     Te::Vector{Float64}
@@ -259,6 +308,7 @@ function get_recombination_rate(imp::Union{String,Symbol}; kw...)
     return RecombinationRate(acd, Te, ne, Z, rate_, imp)
 end
 
+(rc::RecombinationRate)(Z, ne, Te) = rc.rate(Z, ne, Te)
 struct EmissionRate{U,R}
     pec::U
     Te::Vector{Float64}
