@@ -24,9 +24,9 @@ load_data(element::String, path::String) = load_data(get_parsed_data_filepath(el
 function read_file(filepath::String)
     @debug "Reading file: $filepath"
     @assert isfile(filepath) "File not found: $filepath"
-    fid = open(filepath, "r")
-    lines = readlines(fid)
-    close(fid)
+    lines = open(filepath, "r") do f
+        readlines(f)
+    end
     return lines
 end
 
