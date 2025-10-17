@@ -1,7 +1,7 @@
 name = "ADAS"
 uuid = "f4a0d185-1024-41e7-8ef7-3196bb2f6549"
 authors = ["Jerome Guterl <guterlj@fusion.gat.com>"]
-version = "2.0.1"
+version = "2.1.0"
 
 
 
