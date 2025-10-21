@@ -153,8 +153,6 @@ struct Zmean{Z,T,AF<:AbundanceFraction}
     imp::Symbol
 end
 
-
-
 function get_Zmean(imp::Union{String,Symbol}; kw...)
     a = get_abundance_fraction(imp; kw...)
     nZ, nne, nTe = size(a.fZ_grid)
@@ -171,6 +169,31 @@ function get_Zmean(imp::Union{String,Symbol}; kw...)
 end
 
 (zmean::Zmean{Z,T,AF})(ne, Te) where {Z,T,AF<:AbundanceFraction} = zmean.t(ne, Te)
+
+
+struct Z2mean{Z,T,AF<:AbundanceFraction}
+    t::Z
+    t_grid::T
+    af::AF
+    imp::Symbol
+end
+
+function get_Z2mean(imp::Union{String,Symbol}; kw...)
+    a = get_abundance_fraction(imp; kw...)
+    nZ, nne, nTe = size(a.fZ_grid)
+    nZ = nZ - 1
+    t = zeros(nZ, nne, nTe)
+    for Z in 1:nZ
+        t[Z, :, :] = a.fZ_grid[Z+1, :, :] .* (Z ^ 2)
+    end
+    t_grid = sum(t; dims=1)[1, :, :]
+    Te = a.Te
+    ne = a.ne
+    t_ = Interpolations.linear_interpolation((ne, Te), t_grid; extrapolation_bc=Interpolations.Flat())
+    return Z2mean(t_, t_grid, a, imp)
+end
+
+(z2mean::Z2mean{Z,T,AF})(ne, Te) where {Z,T,AF<:AbundanceFraction} = z2mean.t(ne, Te)
 
 
 
@@ -285,10 +308,10 @@ function get_emission_rate(imp::Union{String,Symbol}; type="pec", kw...)
     return EmissionRate(pec, Te, ne, rate_, imp, wls)
 end
 
-function (e::EmissionRate)(ne, Te, i) 
+function (e::EmissionRate)(ne, Te, i)
     @assert i <= length(e.rate) "provide a valid wavelength index (1 to $(length(e.rate)))"
     return e.rate[i](ne, Te)
-end 
+end
 get_Z(e::EmissionRate) = parse(Int64,e.pec.Z)
 
 function meshgrid(x, y)
